@@ -198,10 +198,10 @@ export default function Footer() {
                                     <span className="text-sm font-medium">NodeOps</span>
                                 </div>
 
-                                {/* Thirdweb Logo Placeholder */}
+                                {/* IPFS Storage */}
                                 <div className="flex items-center gap-2 text-[var(--flow-text-secondary)]">
-                                    <div className="w-5 h-5 rounded bg-gradient-to-br from-purple-500 to-pink-500" />
-                                    <span className="text-sm font-medium">Thirdweb</span>
+                                    <div className="w-5 h-5 rounded bg-gradient-to-br from-cyan-500 to-teal-500" />
+                                    <span className="text-sm font-medium">IPFS</span>
                                 </div>
                             </div>
                         </div>

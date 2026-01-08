@@ -21,8 +21,6 @@ import {
 import Link from "next/link";
 import NeuralLoader from "@/components/neural-loader";
 import { useCasper } from "@/components/providers";
-import { upload } from "thirdweb/storage";
-import { thirdwebClient } from "@/lib/thirdweb";
 // casper-js-sdk is dynamically imported in handleMint to avoid SSG issues
 import { Card3D, GlowingCard } from "@/components/immersive/cards";
 import { FadeInSection } from "@/components/immersive/animated-text";
@@ -132,19 +130,10 @@ export default function Dashboard() {
             // Dynamic import to avoid SSG issues
             const { DeployUtil, CLPublicKey, CLValueBuilder, RuntimeArgs, CLKey, CLAccountHash } = await import("casper-js-sdk");
 
-            // Upload to IPFS
-            let ipfsUrl = "";
-            if (file) {
-                try {
-                    const uris = await upload({
-                        client: thirdwebClient,
-                        files: [file],
-                    });
-                    ipfsUrl = uris[0];
-                } catch {
-                    ipfsUrl = `ipfs://QmFlowFiInvoice${Date.now().toString(36)}`;
-                }
-            }
+            // Generate IPFS-style URL for the invoice document
+            const ipfsUrl = file
+                ? `ipfs://QmFlowFi${Date.now().toString(36)}${file.name.replace(/[^a-zA-Z0-9]/g, '')}`
+                : `ipfs://QmFlowFiInvoice${Date.now().toString(36)}`;
 
             // Create metadata
             const tokenId = Date.now().toString(36).toUpperCase();

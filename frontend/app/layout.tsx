@@ -4,7 +4,6 @@ import './globals.css'
 import { CasperWalletProvider } from '@/components/providers'
 import Navbar from '@/components/ui/navbar'
 import Footer from '@/components/ui/footer'
-import { ThirdwebProvider } from "thirdweb/react";
 
 const inter = Inter({
     subsets: ['latin'],
@@ -55,24 +54,22 @@ export default function RootLayout({
     return (
         <html lang="en" className="scroll-smooth" suppressHydrationWarning>
             <head>
-                <link rel="icon" href="/favicon.ico" sizes="any" />
+                <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
                 <meta name="theme-color" content="#030712" />
             </head>
             <body className={`${inter.variable} ${outfit.variable} ${spaceGrotesk.variable} font-sans antialiased`}>
                 {/* Noise Overlay for texture */}
                 <div className="noise-overlay" />
 
-                <ThirdwebProvider>
-                    <CasperWalletProvider>
-                        <div className="flex flex-col min-h-screen relative">
-                            <Navbar />
-                            <main className="flex-grow pt-20 relative z-10">
-                                {children}
-                            </main>
-                            <Footer />
-                        </div>
-                    </CasperWalletProvider>
-                </ThirdwebProvider>
+                <CasperWalletProvider>
+                    <div className="flex flex-col min-h-screen relative">
+                        <Navbar />
+                        <main className="flex-grow pt-20 relative z-10">
+                            {children}
+                        </main>
+                        <Footer />
+                    </div>
+                </CasperWalletProvider>
 
                 {/* Background Grid Pattern */}
                 <div className="fixed inset-0 bg-grid pointer-events-none opacity-30 z-0" />
@@ -80,3 +77,4 @@ export default function RootLayout({
         </html>
     )
 }
+
