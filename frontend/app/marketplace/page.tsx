@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useCasper } from "@/components/providers";
-import { supabase } from "@/lib/supabase";
+import { getSupabaseClient } from "@/lib/supabase";
 // casper-js-sdk is dynamically imported in handleInvest to avoid SSG issues
 import { Card3D, GlowingCard, StatsCard } from "@/components/immersive/cards";
 import { FadeInSection, AnimatedCounter } from "@/components/immersive/animated-text";
@@ -67,7 +67,7 @@ export default function Marketplace() {
     useEffect(() => {
         const loadInvoices = async () => {
             // 1. Fetch from Supabase
-            const { data, error } = await supabase
+            const { data, error } = await getSupabaseClient()
                 .from('invoices')
                 .select('*')
                 .order('created_at', { ascending: false });
@@ -195,7 +195,7 @@ export default function Marketplace() {
             setInvoices(updatedInvoices);
 
             // Update Supabase
-            const { error: sbError } = await supabase
+            const { error: sbError } = await getSupabaseClient()
                 .from('invoices')
                 .update({
                     funding_status: 'funded',

@@ -23,7 +23,7 @@ import Link from "next/link";
 import NeuralLoader from "@/components/neural-loader";
 import { useCasper } from "@/components/providers";
 import { uploadToPinata } from "@/lib/pinata";
-import { supabase } from "@/lib/supabase";
+import { getSupabaseClient } from "@/lib/supabase";
 // casper-js-sdk is dynamically imported in handleMint to avoid SSG issues
 import { Card3D, GlowingCard } from "@/components/immersive/cards";
 import { FadeInSection } from "@/components/immersive/animated-text";
@@ -234,7 +234,7 @@ export default function Dashboard() {
             const termDays = `${Math.floor(30 + Math.random() * 30)} Days`;
 
             // 1. Try Supabase
-            const { error: sbError } = await supabase
+            const { error: sbError } = await getSupabaseClient()
                 .from('invoices')
                 .insert([
                     {

@@ -1,10 +1,27 @@
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-import { createClient } from '@supabase/supabase-js';
+let supabaseInstance: SupabaseClient | null = null;
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+export function getSupabaseClient(): SupabaseClient {
+    if (supabaseInstance) {
+        return supabaseInstance;
+    }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+        throw new Error('Supabase environment variables are not configured');
+    }
+
+    supabaseInstance = createClient(supabaseUrl, supabaseAnonKey);
+    return supabaseInstance;
+}
+
+// Legacy export for backward compatibility - will throw at runtime if env vars missing
+export const supabase = typeof window !== 'undefined'
+    ? getSupabaseClient()
+    : (null as unknown as SupabaseClient);
 
 export interface Invoice {
     id: number;
