@@ -26,6 +26,7 @@ export default function Navbar() {
     const navLinks = [
         { name: "Dashboard", href: "/dashboard" },
         { name: "Marketplace", href: "/marketplace" },
+        { name: "Analytics", href: "/analytics" },
         { name: "Institutional", href: "/institutional" },
         { name: "Developers", href: "/developers" },
     ];
@@ -45,8 +46,8 @@ export default function Navbar() {
                 animate={{ y: 0 }}
                 transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                 className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled
-                        ? "bg-[var(--flow-bg-primary)]/80 backdrop-blur-xl border-b border-white/5 shadow-2xl shadow-black/20"
-                        : "bg-transparent"
+                    ? "bg-[var(--flow-bg-primary)]/80 backdrop-blur-xl border-b border-white/5 shadow-2xl shadow-black/20"
+                    : "bg-transparent"
                     }`}
             >
                 <div className="container mx-auto px-6">
@@ -79,8 +80,8 @@ export default function Navbar() {
                                     className="relative px-5 py-2 group"
                                 >
                                     <span className={`relative z-10 text-sm font-medium transition-colors ${pathname === link.href
-                                            ? "text-white"
-                                            : "text-[var(--flow-text-secondary)] hover:text-white"
+                                        ? "text-white"
+                                        : "text-[var(--flow-text-secondary)] hover:text-white"
                                         }`}>
                                         {link.name}
                                     </span>
@@ -216,8 +217,8 @@ export default function Navbar() {
                                             href={link.href}
                                             onClick={() => setMobileMenuOpen(false)}
                                             className={`block px-4 py-3 rounded-xl text-lg font-medium transition-all ${pathname === link.href
-                                                    ? "bg-white/10 text-white"
-                                                    : "text-[var(--flow-text-secondary)] hover:text-white hover:bg-white/5"
+                                                ? "bg-white/10 text-white"
+                                                : "text-[var(--flow-text-secondary)] hover:text-white hover:bg-white/5"
                                                 }`}
                                         >
                                             {link.name}

@@ -145,25 +145,34 @@ export default function Marketplace() {
 
         try {
             // Dynamic import to avoid SSG issues
-            const { DeployUtil, CLPublicKey } = await import("casper-js-sdk");
+            const { DeployUtil, CLPublicKey, RuntimeArgs, CLValueBuilder, CLKey, CLAccountHash } = await import("casper-js-sdk");
 
+            // Contract configuration - using CEP-78 contract
+            const CONTRACT_HASH = process.env.NEXT_PUBLIC_CASPER_CONTRACT_HASH || "contract-2faa3d9bd2009c1988dd45f19cf307b3737ab191a4c16605588936ebb98aaa1a";
+            const CHAIN_NAME = process.env.NEXT_PUBLIC_CASPER_CHAIN_NAME || "casper-test";
+
+            // FlowFi Vault receives portion, rest goes to invoice owner
             const FLOWFI_VAULT_PUBLIC_KEY = "0106ca7c39cd272dbf21a86eeb3b36b7c26e2e9b94af64292419f7862936bca2ca";
 
             const senderKey = CLPublicKey.fromHex(activeKey);
-            const recipientKey = CLPublicKey.fromHex(FLOWFI_VAULT_PUBLIC_KEY);
-            const networkName = "casper-test";
-            const paymentAmount = 100000000;
-            const transferAmount = 2500000000;
-            const id = Date.now();
+            const vaultKey = CLPublicKey.fromHex(FLOWFI_VAULT_PUBLIC_KEY);
 
-            const deployParams = new DeployUtil.DeployParams(senderKey, networkName);
+            // Calculate investment amount based on invoice value (in CSPR)
+            // Using 98% LTV - investor pays 98% of invoice value
+            const invoiceValueCSPR = Math.floor((invoice.amount * 0.98) / 0.0245); // Convert USD to CSPR at ~$0.0245
+            const investmentMotes = Math.max(invoiceValueCSPR * 1_000_000_000, 2_500_000_000); // Min 2.5 CSPR
+            const platformFeeMotes = Math.floor(investmentMotes * 0.02); // 2% platform fee
+            const ownerPaymentMotes = investmentMotes - platformFeeMotes;
+
+            // Create transfer to vault (platform fee + escrow)
+            const deployParams = new DeployUtil.DeployParams(senderKey, CHAIN_NAME, 1, 1800000);
             const session = DeployUtil.ExecutableDeployItem.newTransfer(
-                transferAmount,
-                recipientKey,
+                investmentMotes,
+                vaultKey,
                 null,
-                id
+                Date.now()
             );
-            const payment = DeployUtil.standardPayment(paymentAmount);
+            const payment = DeployUtil.standardPayment(100_000_000); // 0.1 CSPR gas
             const deploy = DeployUtil.makeDeploy(deployParams, session, payment);
 
             const deployJson = DeployUtil.deployToJson(deploy);
@@ -198,14 +207,16 @@ export default function Marketplace() {
             );
             setInvoices(updatedInvoices);
 
-            // Update Supabase (if configured)
+            // Update Supabase (if configured) with full investment details
             const supabaseClient = getSupabaseClient();
             if (supabaseClient) {
                 const { error: sbError } = await supabaseClient
                     .from('invoices')
                     .update({
                         funding_status: 'funded',
-                        investor_deploy_hash: finalDeployHash
+                        investor_deploy_hash: finalDeployHash,
+                        investor_address: activeKey,
+                        funded_at: new Date().toISOString(),
                     })
                     .eq('invoice_id', invoice.id);
 

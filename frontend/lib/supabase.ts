@@ -50,4 +50,8 @@ export interface Invoice {
     ipfs_url: string;
     funding_status: 'available' | 'funded';
     investor_deploy_hash?: string;
+    investor_address?: string;
+    funded_at?: string;
+    yield_rate?: string;
+    term_days?: string;
 }

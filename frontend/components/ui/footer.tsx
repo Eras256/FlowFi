@@ -12,8 +12,8 @@ export default function Footer() {
         product: [
             { name: "Dashboard", href: "/dashboard" },
             { name: "Marketplace", href: "/marketplace" },
+            { name: "Analytics", href: "/analytics" },
             { name: "Institutional", href: "/institutional" },
-            { name: "Tokenomics", href: "#" },
         ],
         resources: [
             { name: "Documentation", href: "/developers" },
