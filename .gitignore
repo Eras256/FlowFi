@@ -43,3 +43,4 @@ target/
 # Large binary files
 *.tar.gz
 cep-78-enhanced-nft/
+venv/

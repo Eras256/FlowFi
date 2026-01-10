@@ -16,85 +16,31 @@ export function Card3D({
     glowColor = "rgba(0, 245, 212, 0.3)",
     intensity = 20
 }: Card3DProps) {
-    const cardRef = useRef<HTMLDivElement>(null);
     const [isHovered, setIsHovered] = useState(false);
-
-    const x = useMotionValue(0);
-    const y = useMotionValue(0);
-
-    const mouseXSpring = useSpring(x, { stiffness: 300, damping: 30 });
-    const mouseYSpring = useSpring(y, { stiffness: 300, damping: 30 });
-
-    const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], [`${intensity}deg`, `-${intensity}deg`]);
-    const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], [`-${intensity}deg`, `${intensity}deg`]);
-
-    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (!cardRef.current) return;
-
-        const rect = cardRef.current.getBoundingClientRect();
-        const width = rect.width;
-        const height = rect.height;
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-
-        x.set((mouseX / width) - 0.5);
-        y.set((mouseY / height) - 0.5);
-    };
-
-    const handleMouseLeave = () => {
-        x.set(0);
-        y.set(0);
-        setIsHovered(false);
-    };
 
     return (
         <motion.div
-            ref={cardRef}
             className={`relative ${className}`}
-            style={{
-                perspective: 1000,
-                transformStyle: "preserve-3d",
-            }}
-            onMouseMove={handleMouseMove}
             onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={handleMouseLeave}
+            onMouseLeave={() => setIsHovered(false)}
+            whileHover={{ y: -5 }} // Simple lift effect
+            transition={{ duration: 0.2 }}
         >
-            <motion.div
-                style={{
-                    rotateX,
-                    rotateY,
-                    transformStyle: "preserve-3d",
-                }}
-                className="relative w-full h-full"
-            >
+            <div className="relative w-full h-full">
                 {/* Glow Effect */}
                 <motion.div
-                    className="absolute -inset-1 rounded-[inherit] opacity-0 blur-xl transition-opacity duration-500"
+                    className="absolute -inset-[1px] rounded-[inherit] opacity-0 blur-md transition-opacity duration-300 pointer-events-none"
                     style={{
                         background: glowColor,
-                        opacity: isHovered ? 0.5 : 0,
+                        opacity: isHovered ? 0.6 : 0,
                     }}
                 />
 
                 {/* Card Content */}
-                <div className="relative z-10 h-full">
+                <div className="relative z-20 h-full pointer-events-auto bg-[var(--flow-bg-secondary)] rounded-[inherit]">
                     {children}
                 </div>
-
-                {/* Shine Effect */}
-                <motion.div
-                    className="absolute inset-0 rounded-[inherit] pointer-events-none overflow-hidden"
-                    style={{
-                        background: `linear-gradient(
-                            ${useTransform(mouseXSpring, [-0.5, 0.5], [135, 225])}deg,
-                            rgba(255, 255, 255, 0) 40%,
-                            rgba(255, 255, 255, 0.1) 50%,
-                            rgba(255, 255, 255, 0) 60%
-                        )`,
-                        opacity: isHovered ? 1 : 0,
-                    }}
-                />
-            </motion.div>
+            </div>
         </motion.div>
     );
 }
@@ -279,8 +225,8 @@ export function InvoicePreviewCard({
                     </div>
 
                     <div className={`px-3 py-1 rounded-full text-xs font-bold ${riskScore.startsWith("A")
-                            ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                            : "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+                        ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                        : "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
                         }`}>
                         {riskScore}
                     </div>

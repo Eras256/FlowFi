@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useCasper } from "@/components/providers";
+import { supabase } from "@/lib/supabase";
 // casper-js-sdk is dynamically imported in handleInvest to avoid SSG issues
 import { Card3D, GlowingCard, StatsCard } from "@/components/immersive/cards";
 import { FadeInSection, AnimatedCounter } from "@/components/immersive/animated-text";
@@ -62,22 +63,73 @@ export default function Marketplace() {
     const [searchQuery, setSearchQuery] = useState("");
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
-    // Load minted invoices
+    // Load minted invoices from Supabase
     useEffect(() => {
-        const loadMintedInvoices = () => {
-            const stored = localStorage.getItem("flowfi_minted_invoices");
-            if (stored) {
-                const minted: MintedInvoice[] = JSON.parse(stored);
-                const existingIds = new Set(sampleInvoices.map(i => i.id));
-                const uniqueMinted = minted.filter(m => !existingIds.has(m.id));
-                setInvoices([...uniqueMinted.reverse(), ...sampleInvoices]);
+        const loadInvoices = async () => {
+            // 1. Fetch from Supabase
+            const { data, error } = await supabase
+                .from('invoices')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            let dbInvoices: any[] = [];
+            if (data) {
+                dbInvoices = data.map((inv: any) => ({
+                    id: inv.invoice_id,
+                    vendor: inv.vendor_name,
+                    amount: inv.amount,
+                    score: inv.grade || "A",
+                    yield: inv.yield_rate || "12.5%",
+                    term: inv.term_days || "30 Days",
+                    isNew: true,
+                    isFunded: inv.funding_status === 'funded',
+                    deployHash: inv.deploy_hash,
+                    ipfsUrl: inv.ipfs_url,
+                    mintedAt: inv.created_at
+                }));
             }
+
+            // 2. Fallback to localStorage if DB empty or error (optional, but good for demo continuity)
+            const stored = localStorage.getItem("flowfi_minted_invoices");
+            let localInvoices: any[] = [];
+            if (stored) {
+                localInvoices = JSON.parse(stored);
+            }
+
+            // Merge: Prefer DB, then Local, then Static Samples
+            // actually simplify: just use DB + Samples. If DB fails, use Local + Samples.
+            const sourceInvoices = dbInvoices.length > 0 ? dbInvoices : localInvoices;
+
+            const existingIds = new Set(sampleInvoices.map(i => i.id));
+            const uniqueMinted = sourceInvoices.filter((m: any) => !existingIds.has(m.id));
+
+            setInvoices([...uniqueMinted, ...sampleInvoices]);
         };
 
-        loadMintedInvoices();
-        window.addEventListener("storage", loadMintedInvoices);
-        return () => window.removeEventListener("storage", loadMintedInvoices);
+        loadInvoices();
+        // window.addEventListener("storage", loadInvoices); // Supabase replaces this need mostly
     }, []);
+
+    const sendDeployToNetwork = async (signedDeployJson: any): Promise<string> => {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+        const response = await fetch(`${apiUrl}/deploy`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ deploy: signedDeployJson })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.detail || `HTTP ${response.status}`);
+        }
+
+        const result = await response.json();
+        if (result.success && result.deploy_hash) {
+            return result.deploy_hash;
+        }
+        throw new Error("No deploy hash returned");
+    };
 
     const handleInvest = async (invoice: MintedInvoice) => {
         if (!isConnected || !activeKey) {
@@ -109,16 +161,51 @@ export default function Marketplace() {
             );
             const payment = DeployUtil.standardPayment(paymentAmount);
             const deploy = DeployUtil.makeDeploy(deployParams, session, payment);
-            const deployHash = Buffer.from(deploy.hash).toString('hex');
+
             const deployJson = DeployUtil.deployToJson(deploy);
 
-            await signDeploy(JSON.stringify(deployJson));
+            // Sign
+            const signatureHex = await signDeploy(JSON.stringify(deployJson));
 
+            // Fix signature prefix logic
+            const keyType = activeKey.substring(0, 2);
+            let finalSignature = signatureHex;
+            if (!finalSignature.startsWith(keyType)) {
+                finalSignature = `${keyType}${signatureHex}`;
+            }
+
+            // Construct final JSON
+            const signedDeployJson = {
+                deploy: {
+                    ...(deployJson as any).deploy,
+                    approvals: [{
+                        signer: activeKey,
+                        signature: finalSignature
+                    }]
+                }
+            };
+
+            // Send to network
+            const finalDeployHash = await sendDeployToNetwork(signedDeployJson);
+
+            // Update UI state
             const updatedInvoices = invoices.map(inv =>
                 inv.id === invoice.id ? { ...inv, isFunded: true } : inv
             );
             setInvoices(updatedInvoices);
 
+            // Update Supabase
+            const { error: sbError } = await supabase
+                .from('invoices')
+                .update({
+                    funding_status: 'funded',
+                    investor_deploy_hash: finalDeployHash
+                })
+                .eq('invoice_id', invoice.id);
+
+            if (sbError) console.error("Supabase update failed", sbError);
+
+            // Fallback for localStorage to keep everything in sync
             if (invoice.isNew) {
                 const stored = JSON.parse(localStorage.getItem("flowfi_minted_invoices") || "[]");
                 const updatedStored = stored.map((inv: any) =>
@@ -127,10 +214,11 @@ export default function Marketplace() {
                 localStorage.setItem("flowfi_minted_invoices", JSON.stringify(updatedStored));
             }
 
-            setSuccessTx(deployHash);
+            setSuccessTx(finalDeployHash);
 
         } catch (error) {
             console.error("Investment failed:", error);
+            alert("Investment failed. See console for details.");
         } finally {
             setInvestingId(null);
         }

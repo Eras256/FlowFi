@@ -189,6 +189,15 @@ async def send_deploy(request: DeployRequest):
                     if "error" in result:
                         error_msg = result["error"].get("message", str(result["error"]))
                         logger.warning(f"RPC error from {rpc_url}: {error_msg}")
+                        
+                        # DEBUG: Save failed deploy for inspection
+                        try:
+                            with open("/tmp/failed_deploy.json", "w") as f:
+                                json.dump(actual_deploy, f, indent=2)
+                            logger.info(f"💾 Saved failed deploy to /tmp/failed_deploy.json")
+                        except Exception as e:
+                            logger.error(f"Failed to save debug deploy: {e}")
+                            
                         errors.append(f"{rpc_url}: {error_msg}")
                         continue
                     

@@ -1,0 +1,24 @@
+
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+export interface Invoice {
+    id: number;
+    created_at: string;
+    invoice_id: string; // The NFT token ID or internal ID
+    vendor_name: string;
+    client_name: string;
+    amount: number;
+    currency: string;
+    due_date: string;
+    risk_score: number;
+    grade: string;
+    deploy_hash: string;
+    ipfs_url: string;
+    funding_status: 'available' | 'funded';
+    investor_deploy_hash?: string;
+}
