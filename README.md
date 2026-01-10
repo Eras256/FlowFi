@@ -103,6 +103,19 @@ NEXT_PUBLIC_CASPER_CONTRACT_HASH=contract-2faa3d9bd2009c1988dd45f19cf307b3737ab1
 
 ---
 
+## 🚀 Deployment to Vercel
+
+If you are deploying this project to Vercel, please follow these steps to ensure a successful build:
+
+1.  **Import Project**: Import the repository into Vercel.
+2.  **Root Directory**: In the "Configure Project" step, click **Edit** next to "Root Directory".
+3.  **Select Frontend**: Select the `frontend` folder. This is critical because the Next.js application lives in this subdirectory.
+4.  **Environment Variables**: Add your environment variables (from `.env.local`) to the Vercel project settings.
+
+> **Note**: If you see an error like `No Next.js version detected`, it means Vercel is looking at the repository root instead of the `frontend` directory.
+
+---
+
 ## 📁 Project Structure
 
 ```
