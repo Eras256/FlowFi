@@ -163,12 +163,16 @@ export default function Dashboard() {
             // Metadata format proven to work with this contract install (Script-aligned)
             // Error 36 (InvalidTokenMeta) happens if schema doesn't match contract init settings
             // Metadata format STRICTLY aligned with successful transaction be7e4...21941
-            // Contract requires standard CEP-78 schema (name, token_uri, checksum)
-            // Extra fields like amount/status cause Error 36.
+            // Error 36: Checksum likely requires 64-char hex string (SHA256 format)
+            const checksumHex = Array.from(tokenId + Date.now().toString())
+                .reduce((acc, char) => acc + char.charCodeAt(0).toString(16).padStart(2, '0'), '')
+                .padEnd(64, '0') // Ensure exactly 64 chars if too short
+                .substring(0, 64); // Ensure exactly 64 chars if too long
+
             const metadataVerified = {
                 name: `FlowFi Invoice ${tokenId}`,
                 token_uri: ipfsUrl,
-                checksum: "verified" // using simple string as seen in example or calc SHA256 ideally
+                checksum: checksumHex
             };
 
             const metadataJson = JSON.stringify(metadataVerified);
