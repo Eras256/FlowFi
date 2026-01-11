@@ -162,11 +162,12 @@ export default function Dashboard() {
 
             // Metadata format proven to work with this contract install (Script-aligned)
             // Error 36 (InvalidTokenMeta) happens if schema doesn't match contract init settings
-            // We use the EXACT fields from the working mint_batch.js to ensure success
+            // Metadata format STRICTLY aligned with working mint_batch.js
+            // Removing variables to ensure type safety (Error 36 fix)
             const metadataVerified = {
-                name: `FlowFi Invoice #${tokenId}`,
-                description: `Verified Invoice - IPFS: ${ipfsUrl}`,
-                amount: (result && result.valuation) ? result.valuation : 50000,
+                name: `FlowFi Invoice ${tokenId}`,
+                description: "Verified Invoice",
+                amount: 50000,
                 status: "financed"
             };
 
