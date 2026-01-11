@@ -320,6 +320,10 @@ export default function Marketplace() {
             inv.id.toLowerCase().includes(searchQuery.toLowerCase())
         )
         .sort((a, b) => {
+            // Prioritize NEW minted items for the demo (always show at top)
+            if (a.isNew && !b.isNew) return -1;
+            if (!a.isNew && b.isNew) return 1;
+
             if (sortBy === "amount") return b.amount - a.amount;
             if (sortBy === "yield") return parseFloat(b.yield) - parseFloat(a.yield);
             return parseInt(a.term) - parseInt(b.term);
