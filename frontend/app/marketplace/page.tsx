@@ -123,6 +123,9 @@ export default function Marketplace() {
                 try {
                     localInvoices = JSON.parse(stored).map((inv: any) => ({
                         ...inv,
+                        score: inv.score || inv.grade || "A",           // Normalize grade -> score
+                        yield: inv.yield || inv.yield_rate || "12.5%",  // Normalize yield_rate -> yield
+                        term: inv.term || inv.term_days || 30,          // Normalize term_days -> term
                         isNew: true
                     }));
                 } catch (e) {
