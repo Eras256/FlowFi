@@ -126,6 +126,7 @@ export default function Marketplace() {
                         score: inv.score || inv.grade || "A",           // Normalize grade -> score
                         yield: inv.yield || inv.yield_rate || "12.5%",  // Normalize yield_rate -> yield
                         term: inv.term || inv.term_days || 30,          // Normalize term_days -> term
+                        deployHash: inv.deployHash || inv.deploy_hash,  // Normalize deploy_hash -> deployHash
                         isNew: true
                     }));
                 } catch (e) {

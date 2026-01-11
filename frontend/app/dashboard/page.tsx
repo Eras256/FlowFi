@@ -319,7 +319,7 @@ export default function Dashboard() {
             // 2. Always update localStorage for immediate local feedback/redundancy
             const invoiceData = {
                 id: tokenId,
-                vendor: `FlowFi Vendor ${tokenId.substring(0, 4)}`,
+                vendor: (result && (result as any).companyName) ? (result as any).companyName : `FlowFi Vendor ${tokenId.substring(0, 4)}`,
                 amount: (result && result.valuation) ? result.valuation : 50000,
                 grade: (result && result.risk_score) ? result.risk_score : "A",
                 yield_rate: "12.5%",
