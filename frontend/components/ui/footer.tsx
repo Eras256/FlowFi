@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Github, Twitter, Linkedin, MessageCircle } from "lucide-react";
 import { AnimatedLine, FadeInSection } from "@/components/immersive/animated-text";
@@ -47,8 +48,13 @@ export default function Footer() {
                             <div className="space-y-6">
                                 {/* Logo */}
                                 <Link href="/" className="inline-flex items-center gap-3 group">
-                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--flow-cyan)] to-[var(--flow-purple)] flex items-center justify-center">
-                                        <span className="text-white font-bold text-xl">F</span>
+                                    <div className="relative w-12 h-12 rounded-xl overflow-hidden group-hover:scale-105 transition-transform duration-300">
+                                        <Image
+                                            src="/flowfi-logo.jpg"
+                                            alt="FlowFi Logo"
+                                            fill
+                                            className="object-cover"
+                                        />
                                     </div>
                                     <span className="font-bold text-3xl tracking-tight">
                                         <span className="text-white">Flow</span>

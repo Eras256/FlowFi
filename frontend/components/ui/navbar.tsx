@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCasper } from "@/components/providers";
@@ -45,7 +46,7 @@ export default function Navbar() {
                 initial={{ y: -100 }}
                 animate={{ y: 0 }}
                 transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled
+                className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ${scrolled
                     ? "bg-[var(--flow-bg-primary)]/80 backdrop-blur-xl border-b border-white/5 shadow-2xl shadow-black/20"
                     : "bg-transparent"
                     }`}
@@ -55,14 +56,16 @@ export default function Navbar() {
                         {/* Logo */}
                         <Link href="/" className="flex items-center gap-3 group">
                             <motion.div
-                                className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--flow-cyan)] to-[var(--flow-purple)] flex items-center justify-center"
-                                whileHover={{ rotate: 180 }}
-                                transition={{ duration: 0.5 }}
+                                className="relative w-10 h-10 rounded-xl overflow-hidden"
+                                whileHover={{ scale: 1.1 }}
+                                transition={{ duration: 0.2 }}
                             >
-                                <span className="text-white font-bold text-lg">F</span>
-
-                                {/* Ping effect */}
-                                <span className="absolute inset-0 rounded-xl bg-gradient-to-br from-[var(--flow-cyan)] to-[var(--flow-purple)] animate-ping-slow opacity-50" />
+                                <Image
+                                    src="/flowfi-logo.jpg"
+                                    alt="FlowFi Logo"
+                                    fill
+                                    className="object-cover"
+                                />
                             </motion.div>
 
                             <span className="font-bold text-2xl tracking-tight">
@@ -186,7 +189,7 @@ export default function Navbar() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-40 lg:hidden"
+                        className="fixed inset-0 z-[99] lg:hidden"
                     >
                         {/* Backdrop */}
                         <motion.div
