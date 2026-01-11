@@ -11,13 +11,13 @@ export async function POST(req: NextRequest) {
         }
 
         // Logic to select RPC node
-        const CSPR_CLOUD_KEY = process.env.CSPR_CLOUD_ACCESS_TOKEN;
+        const CSPR_CLOUD_KEY = process.env.NEXT_PUBLIC_CSPR_CLOUD_ACCESS_TOKEN || process.env.CSPR_CLOUD_ACCESS_TOKEN;
         let rpcUrl = "https://node.testnet.casper.network/rpc"; // Public fallback
         let headers: any = { "Content-Type": "application/json" };
 
         if (CSPR_CLOUD_KEY) {
             rpcUrl = "https://node.testnet.cspr.cloud/rpc";
-            headers["Authorization"] = CSPR_CLOUD_KEY;
+            headers["authorization"] = CSPR_CLOUD_KEY; // lowercase 'authorization' for CSPR.cloud
         }
 
         console.log(`Forwarding deploy to: ${rpcUrl}`);

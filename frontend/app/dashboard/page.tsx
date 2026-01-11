@@ -315,7 +315,8 @@ export default function Dashboard() {
                 mintedAt: new Date().toISOString(),
                 ipfsUrl,
                 isNew: true,
-                tokenId
+                tokenId,
+                owner: activeKey // ✅ Save owner address for direct payments in marketplace
             };
 
             const existingInvoices = JSON.parse(localStorage.getItem("flowfi_minted_invoices") || "[]");
