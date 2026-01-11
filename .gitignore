@@ -44,3 +44,6 @@ target/
 *.tar.gz
 cep-78-enhanced-nft/
 venv/
+*.pem
+temp_key.pem
+deploy_result.json
