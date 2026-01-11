@@ -162,13 +162,13 @@ export default function Dashboard() {
 
             // Metadata format proven to work with this contract install (Script-aligned)
             // Error 36 (InvalidTokenMeta) happens if schema doesn't match contract init settings
-            // Metadata format STRICTLY aligned with working mint_batch.js
-            // Removing variables to ensure type safety (Error 36 fix)
+            // Metadata format STRICTLY aligned with successful transaction be7e4...21941
+            // Contract requires standard CEP-78 schema (name, token_uri, checksum)
+            // Extra fields like amount/status cause Error 36.
             const metadataVerified = {
                 name: `FlowFi Invoice ${tokenId}`,
-                description: "Verified Invoice",
-                amount: "50000",
-                status: "financed"
+                token_uri: ipfsUrl,
+                checksum: "verified" // using simple string as seen in example or calc SHA256 ideally
             };
 
             const metadataJson = JSON.stringify(metadataVerified);
