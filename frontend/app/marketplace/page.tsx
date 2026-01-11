@@ -631,6 +631,21 @@ export default function Marketplace() {
                                                     <p className="text-xs text-[var(--flow-text-muted)]">Term</p>
                                                 </div>
 
+                                                {/* Blockchain Verified Badge + Explorer Link */}
+                                                {inv.deployHash && (
+                                                    <a
+                                                        href={`https://testnet.cspr.live/deploy/${inv.deployHash}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--flow-cyan)]/10 text-[var(--flow-cyan)] text-sm font-medium hover:bg-[var(--flow-cyan)]/20 transition-colors"
+                                                        title="View on Explorer"
+                                                    >
+                                                        <Shield className="w-3 h-3" />
+                                                        Verified
+                                                        <ExternalLink className="w-3 h-3" />
+                                                    </a>
+                                                )}
+
                                                 {inv.isFunded ? (
                                                     <span className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[var(--flow-green)]/20 text-[var(--flow-green)] font-medium">
                                                         <Check className="w-4 h-4" /> Funded
