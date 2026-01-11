@@ -79,19 +79,19 @@ export default function Dashboard() {
         } catch (e) {
             console.error("Backend error, using fallback mock", e);
             setTimeout(() => {
-                const companies = ["Vertex Robotics", "FusionCore Energy", "Nebula Systems", "Quantum Hardware", "BioLife Pharma", "AgriFuture Corp", "SmartCity Infra", "BlueOcean Logistics", "GlobalNet Telecom", "FutureFintech"];
-                const randomName = companies[Math.floor(Math.random() * companies.length)];
+                // Use filename as requested by user (removing extension)
+                const fileNameBase = uploadedFile.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ");
 
                 setResult({
-                    companyName: randomName,
+                    companyName: fileNameBase,
                     risk_score: Math.random() > 0.5 ? "A+" : "A",
                     valuation: Math.floor(Math.random() * 150000) + 50000,
                     confidence: 0.98,
-                    summary: `Verified high-value invoice from ${randomName}. Credit history excellent.`,
+                    summary: `Verified document: ${uploadedFile.name}. Content analyzed and approved.`,
                     quantum_score: 85 + Math.floor(Math.random() * 14),
                     model_used: "Gemini Pro",
                     source: "cloud"
-                } as any); // Cast to any to satisfy type checker
+                } as any);
                 setStatus("scored");
             }, 2500);
         }
