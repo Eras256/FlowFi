@@ -75,7 +75,7 @@ export default function Marketplace() {
     const { isConnected, connect, activeKey, signDeploy } = useCasper();
     const [invoices, setInvoices] = useState<any[]>(sampleInvoices);
     const [filter, setFilter] = useState<"all" | "minted" | "funded">("all");
-    const [sortBy, setSortBy] = useState<"amount" | "yield" | "term">("amount");
+    const [sortBy, setSortBy] = useState<"amount" | "yield" | "term" | "newest" | "oldest">("amount");
     const [investingId, setInvestingId] = useState<string | null>(null);
     const [successTx, setSuccessTx] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
@@ -320,7 +320,11 @@ export default function Marketplace() {
             inv.id.toLowerCase().includes(searchQuery.toLowerCase())
         )
         .sort((a, b) => {
-            // Prioritize NEW minted items for the demo (always show at top)
+            // Specific Sorts
+            if (sortBy === "newest") return (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0);
+            if (sortBy === "oldest") return (a.isNew ? 1 : 0) - (b.isNew ? 1 : 0);
+
+            // Default priority for NEW items (if not sorting by Oldest)
             if (a.isNew && !b.isNew) return -1;
             if (!a.isNew && b.isNew) return 1;
 
@@ -441,15 +445,26 @@ export default function Marketplace() {
 
                         <div className="flex gap-3">
                             {/* Sort */}
-                            <select
-                                value={sortBy}
-                                onChange={(e) => setSortBy(e.target.value as any)}
-                                className="input-glass py-3 px-4 text-sm bg-white/5"
-                            >
-                                <option value="amount">Sort by Amount</option>
-                                <option value="yield">Sort by Yield</option>
-                                <option value="term">Sort by Term</option>
-                            </select>
+                            <div className="relative">
+                                <select
+                                    value={sortBy}
+                                    onChange={(e) => setSortBy(e.target.value as any)}
+                                    className="input-glass py-3 px-4 pr-10 text-sm bg-black/40 border border-white/10 text-white rounded-xl appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--flow-cyan)] hover:bg-white/10 transition-colors"
+                                    style={{ backgroundImage: 'none' }}
+                                >
+                                    <option value="amount" className="bg-[#0B1221] text-white">Sort by Amount</option>
+                                    <option value="newest" className="bg-[#0B1221] text-white">Sort by Newest</option>
+                                    <option value="oldest" className="bg-[#0B1221] text-white">Sort by Oldest</option>
+                                    <option value="yield" className="bg-[#0B1221] text-white">Sort by Yield</option>
+                                    <option value="term" className="bg-[#0B1221] text-white">Sort by Term</option>
+                                </select>
+                                {/* Custom arrow icon overlay */}
+                                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--flow-text-muted)]">
+                                    <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
+                                </div>
+                            </div>
 
                             {/* View Toggle */}
                             <div className="flex rounded-xl overflow-hidden border border-white/10">
@@ -468,271 +483,276 @@ export default function Marketplace() {
                             </div>
                         </div>
                     </div>
-                </FadeInSection>
-
-                {/* Invoice Grid */}
-                <AnimatePresence mode="popLayout">
-                    {viewMode === "grid" ? (
-                        <StaggerContainer className="grid md:grid-cols-2 lg:grid-cols-3 gap-6" stagger={0.05}>
-                            {filteredInvoices.map((inv) => (
-                                <div key={inv.id} data-stagger-item>
-                                    <Card3D glowColor={inv.isNew ? "rgba(0, 245, 212, 0.2)" : "rgba(124, 58, 237, 0.2)"}>
-                                        <motion.div
-                                            layout
-                                            className={`glass rounded-2xl p-6 h-full border transition-colors ${inv.isNew
-                                                ? "border-[var(--flow-cyan)]/30"
-                                                : "border-white/10 hover:border-white/20"
-                                                }`}
-                                        >
-                                            {/* New Badge */}
-                                            {inv.isNew && (
-                                                <div className="flex items-center gap-2 mb-4 text-xs text-[var(--flow-cyan)] font-medium">
-                                                    <Sparkles className="w-3 h-3" />
-                                                    Newly Minted on Casper
-                                                </div>
-                                            )}
-
-                                            {/* Header */}
-                                            <div className="flex items-start justify-between mb-6">
-                                                <div className="flex items-center gap-3">
-                                                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${getScoreColor(inv.score)} flex items-center justify-center`}>
-                                                        <Zap className="w-6 h-6 text-white" />
-                                                    </div>
-                                                    <div>
-                                                        <h3 className="font-bold text-white">{inv.vendor}</h3>
-                                                        <p className="text-sm text-[var(--flow-text-muted)]">{inv.id}</p>
-                                                    </div>
-                                                </div>
-                                                <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getScoreBg(inv.score)}`}>
-                                                    {inv.score}
-                                                </span>
-                                            </div>
-
-                                            {/* Stats Grid */}
-                                            <div className="grid grid-cols-3 gap-4 mb-6">
-                                                <div>
-                                                    <p className="text-xs text-[var(--flow-text-muted)] uppercase tracking-wider mb-1">Amount</p>
-                                                    <p className="text-lg font-bold font-mono text-white">${inv.amount.toLocaleString()}</p>
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs text-[var(--flow-text-muted)] uppercase tracking-wider mb-1">Yield</p>
-                                                    <p className="text-lg font-bold text-[var(--flow-cyan)]">{inv.yield}</p>
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs text-[var(--flow-text-muted)] uppercase tracking-wider mb-1">Term</p>
-                                                    <p className="text-lg font-medium text-white">{inv.term}</p>
-                                                </div>
-                                            </div>
-
-                                            {/* Footer */}
-                                            <div className="flex items-center justify-between pt-4 border-t border-white/10">
-                                                <div className="flex items-center gap-2 text-xs text-[var(--flow-text-muted)]">
-                                                    <Shield className="w-3 h-3" />
-                                                    {inv.deployHash ? "Blockchain Verified" : "AI Verified"}
-                                                </div>
-
-                                                <div className="flex items-center gap-2">
-                                                    {inv.deployHash && (
-                                                        <a
-                                                            href={`https://testnet.cspr.live/deploy/${inv.deployHash}`}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
-                                                            title="View on Explorer"
-                                                        >
-                                                            <ExternalLink className="w-3 h-3 text-[var(--flow-cyan)]" />
-                                                        </a>
-                                                    )}
-
-                                                    {inv.isFunded ? (
-                                                        <span className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--flow-green)]/20 text-[var(--flow-green)] font-medium text-sm">
-                                                            <Check className="w-4 h-4" /> Funded
-                                                        </span>
-                                                    ) : (
-                                                        <button
-                                                            onClick={() => handleInvest(inv)}
-                                                            disabled={!!investingId}
-                                                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[var(--flow-cyan)] to-[var(--flow-purple)] text-white font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
-                                                        >
-                                                            {investingId === inv.id ? (
-                                                                <>
-                                                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                                                    Investing...
-                                                                </>
-                                                            ) : (
-                                                                <>
-                                                                    Invest <ArrowUpRight className="w-4 h-4" />
-                                                                </>
-                                                            )}
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </motion.div>
-                                    </Card3D>
-                                </div>
-                            ))}
-                        </StaggerContainer>
-                    ) : (
-                        /* List View */
-                        <div className="space-y-4">
-                            {filteredInvoices.map((inv, i) => (
-                                <motion.div
-                                    key={inv.id}
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: i * 0.05 }}
-                                >
-                                    <GlowingCard className="rounded-2xl overflow-hidden">
-                                        <div className="bg-[var(--flow-bg-secondary)] p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                                            <div className="flex items-center gap-4">
-                                                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${getScoreColor(inv.score)} flex items-center justify-center`}>
-                                                    <span className="text-lg font-bold text-white">{inv.score}</span>
-                                                </div>
-                                                <div>
-                                                    <div className="flex items-center gap-2">
-                                                        <h3 className="font-bold text-white">{inv.vendor}</h3>
-                                                        {inv.isNew && (
-                                                            <span className="px-2 py-0.5 rounded text-xs bg-[var(--flow-cyan)]/20 text-[var(--flow-cyan)]">New</span>
-                                                        )}
-                                                    </div>
-                                                    <p className="text-sm text-[var(--flow-text-muted)]">{inv.id}</p>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex items-center gap-8">
-                                                <div className="text-center">
-                                                    <p className="text-xl font-bold font-mono text-white">${inv.amount.toLocaleString()}</p>
-                                                    <p className="text-xs text-[var(--flow-text-muted)]">Amount</p>
-                                                </div>
-                                                <div className="text-center">
-                                                    <p className="text-xl font-bold text-[var(--flow-cyan)]">{inv.yield}</p>
-                                                    <p className="text-xs text-[var(--flow-text-muted)]">APY</p>
-                                                </div>
-                                                <div className="text-center">
-                                                    <p className="text-xl font-medium text-white">{inv.term}</p>
-                                                    <p className="text-xs text-[var(--flow-text-muted)]">Term</p>
-                                                </div>
-
-                                                {/* Blockchain Verified Badge + Explorer Link */}
-                                                {inv.deployHash && (
-                                                    <a
-                                                        href={`https://testnet.cspr.live/deploy/${inv.deployHash}`}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--flow-cyan)]/10 text-[var(--flow-cyan)] text-sm font-medium hover:bg-[var(--flow-cyan)]/20 transition-colors"
-                                                        title="View on Explorer"
-                                                    >
-                                                        <Shield className="w-3 h-3" />
-                                                        Verified
-                                                        <ExternalLink className="w-3 h-3" />
-                                                    </a>
-                                                )}
-
-                                                {inv.isFunded ? (
-                                                    <span className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[var(--flow-green)]/20 text-[var(--flow-green)] font-medium">
-                                                        <Check className="w-4 h-4" /> Funded
-                                                    </span>
-                                                ) : (
-                                                    <button
-                                                        onClick={() => handleInvest(inv)}
-                                                        disabled={!!investingId}
-                                                        className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[var(--flow-cyan)] to-[var(--flow-purple)] text-white font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
-                                                    >
-                                                        {investingId === inv.id ? (
-                                                            <Loader2 className="w-4 h-4 animate-spin" />
-                                                        ) : (
-                                                            <>Invest Now</>
-                                                        )}
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </GlowingCard>
-                                </motion.div>
-                            ))}
-                        </div>
-                    )}
-                </AnimatePresence>
-
-                {/* Empty State */}
-                {filteredInvoices.length === 0 && (
-                    <div className="text-center py-20">
-                        <div className="w-20 h-20 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-6">
-                            <Search className="w-8 h-8 text-[var(--flow-text-muted)]" />
-                        </div>
-                        <p className="text-[var(--flow-text-muted)] mb-4">No invoices found matching your criteria.</p>
-                        <Link href="/dashboard" className="text-[var(--flow-cyan)] font-medium hover:underline">
-                            Go to Dashboard to mint your first invoice →
-                        </Link>
-                    </div>
-                )}
             </div>
+        </FadeInSection>
 
-            {/* Success Modal */}
-            <AnimatePresence>
-                {successTx && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-black/80 backdrop-blur-xl flex items-center justify-center z-50 p-4"
-                        onClick={() => setSuccessTx(null)}
-                    >
-                        <motion.div
-                            initial={{ scale: 0.9, y: 30 }}
-                            animate={{ scale: 1, y: 0 }}
-                            exit={{ scale: 0.9, y: 30 }}
-                            className="bg-[var(--flow-bg-secondary)] rounded-3xl p-8 max-w-md w-full border border-white/10"
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            {/* Gradient Top Bar */}
-                            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[var(--flow-cyan)] via-[var(--flow-purple)] to-[var(--flow-pink)] rounded-t-3xl" />
+                {/* Invoice Grid */ }
+    <AnimatePresence mode="popLayout">
+        {viewMode === "grid" ? (
+            <StaggerContainer className="grid md:grid-cols-2 lg:grid-cols-3 gap-6" stagger={0.05}>
+                {filteredInvoices.map((inv) => (
+                    <div key={inv.id} data-stagger-item>
+                        <Card3D glowColor={inv.isNew ? "rgba(0, 245, 212, 0.2)" : "rgba(124, 58, 237, 0.2)"}>
+                            <motion.div
+                                layout
+                                className={`glass rounded-2xl p-6 h-full border transition-colors ${inv.isNew
+                                    ? "border-[var(--flow-cyan)]/30"
+                                    : "border-white/10 hover:border-white/20"
+                                    }`}
+                            >
+                                {/* New Badge */}
+                                {inv.isNew && (
+                                    <div className="flex items-center gap-2 mb-4 text-xs text-[var(--flow-cyan)] font-medium">
+                                        <Sparkles className="w-3 h-3" />
+                                        Newly Minted on Casper
+                                    </div>
+                                )}
 
-                            <div className="text-center">
-                                {/* Success Icon */}
-                                <motion.div
-                                    initial={{ scale: 0 }}
-                                    animate={{ scale: 1 }}
-                                    transition={{ type: "spring", delay: 0.2 }}
-                                    className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-[var(--flow-green)] to-emerald-500 flex items-center justify-center"
-                                >
-                                    <Check className="w-10 h-10 text-white" strokeWidth={3} />
-                                </motion.div>
-
-                                <h2 className="text-2xl font-bold text-white mb-2">Investment Successful!</h2>
-                                <p className="text-[var(--flow-text-secondary)] mb-8">
-                                    You have successfully funded this Real-World Asset on Casper Network.
-                                </p>
-
-                                {/* Transaction Hash */}
-                                <div className="p-4 rounded-xl bg-white/5 border border-white/10 mb-6 text-left">
-                                    <p className="text-xs text-[var(--flow-text-muted)] uppercase tracking-wider mb-1">Transaction Hash</p>
-                                    <p className="font-mono text-xs text-[var(--flow-text-secondary)] break-all">{successTx}</p>
+                                {/* Header */}
+                                <div className="flex items-start justify-between mb-6">
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${getScoreColor(inv.score)} flex items-center justify-center`}>
+                                            <Zap className="w-6 h-6 text-white" />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-bold text-white">{inv.vendor}</h3>
+                                            <p className="text-sm text-[var(--flow-text-muted)]">{inv.id}</p>
+                                        </div>
+                                    </div>
+                                    <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getScoreBg(inv.score)}`}>
+                                        {inv.score}
+                                    </span>
                                 </div>
 
-                                {/* Actions */}
-                                <div className="flex flex-col gap-3">
-                                    <a
-                                        href={`https://testnet.cspr.live/deploy/${successTx}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="w-full py-4 rounded-xl font-bold bg-gradient-to-r from-[var(--flow-cyan)] to-[var(--flow-purple)] text-white hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-                                    >
-                                        View on Explorer <ExternalLink className="w-4 h-4" />
-                                    </a>
-                                    <button
-                                        onClick={() => setSuccessTx(null)}
-                                        className="w-full py-4 rounded-xl font-bold bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors"
-                                    >
-                                        Close
-                                    </button>
+                                {/* Stats Grid */}
+                                <div className="grid grid-cols-3 gap-4 mb-6">
+                                    <div>
+                                        <p className="text-xs text-[var(--flow-text-muted)] uppercase tracking-wider mb-1">Amount</p>
+                                        <p className="text-lg font-bold font-mono text-white">${inv.amount.toLocaleString()}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-[var(--flow-text-muted)] uppercase tracking-wider mb-1">Yield</p>
+                                        <p className="text-lg font-bold text-[var(--flow-cyan)]">{inv.yield}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-[var(--flow-text-muted)] uppercase tracking-wider mb-1">Term</p>
+                                        <p className="text-lg font-medium text-white">{inv.term}</p>
+                                    </div>
+                                </div>
+
+                                {/* Footer */}
+                                <div className="flex items-center justify-between pt-4 border-t border-white/10">
+                                    <div className="flex items-center gap-2 text-xs text-[var(--flow-text-muted)]">
+                                        <Shield className="w-3 h-3" />
+                                        {inv.deployHash ? "Blockchain Verified" : "AI Verified"}
+                                    </div>
+
+                                    <div className="flex items-center gap-2">
+                                        {inv.deployHash && (
+                                            <a
+                                                href={`https://testnet.cspr.live/deploy/${inv.deployHash}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                                                title="View on Explorer"
+                                            >
+                                                <ExternalLink className="w-3 h-3 text-[var(--flow-cyan)]" />
+                                            </a>
+                                        )}
+
+                                        {inv.isFunded ? (
+                                            <span className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--flow-green)]/20 text-[var(--flow-green)] font-medium text-sm">
+                                                <Check className="w-4 h-4" /> Funded
+                                            </span>
+                                        ) : (
+                                            <button
+                                                onClick={() => handleInvest(inv)}
+                                                disabled={!!investingId}
+                                                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[var(--flow-cyan)] to-[var(--flow-purple)] text-white font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
+                                            >
+                                                {investingId === inv.id ? (
+                                                    <>
+                                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                                        Investing...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        Invest <ArrowUpRight className="w-4 h-4" />
+                                                    </>
+                                                )}
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </Card3D>
+                    </div>
+                ))}
+            </StaggerContainer>
+        ) : (
+            /* List View */
+            <div className="space-y-4">
+                {filteredInvoices.map((inv, i) => (
+                    <motion.div
+                        key={inv.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.05 }}
+                    >
+                        <GlowingCard className="rounded-2xl overflow-hidden">
+                            <div className="bg-[var(--flow-bg-secondary)] p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                                <div className="flex items-center gap-4">
+                                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${getScoreColor(inv.score)} flex items-center justify-center`}>
+                                        <span className="text-lg font-bold text-white">{inv.score}</span>
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center gap-2">
+                                            <h3 className="font-bold text-white">{inv.vendor}</h3>
+                                            {inv.isNew && (
+                                                <span className="px-2 py-0.5 rounded text-xs bg-[var(--flow-cyan)]/20 text-[var(--flow-cyan)]">New</span>
+                                            )}
+                                        </div>
+                                        <p className="text-sm text-[var(--flow-text-muted)]">{inv.id}</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-8">
+                                    <div className="text-center">
+                                        <p className="text-xl font-bold font-mono text-white">${inv.amount.toLocaleString()}</p>
+                                        <p className="text-xs text-[var(--flow-text-muted)]">Amount</p>
+                                    </div>
+                                    <div className="text-center">
+                                        <p className="text-xl font-bold text-[var(--flow-cyan)]">{inv.yield}</p>
+                                        <p className="text-xs text-[var(--flow-text-muted)]">APY</p>
+                                    </div>
+                                    <div className="text-center">
+                                        <p className="text-xl font-medium text-white">{inv.term}</p>
+                                        <p className="text-xs text-[var(--flow-text-muted)]">Term</p>
+                                    </div>
+
+                                    {/* Blockchain Verified Badge + Explorer Link */}
+                                    {inv.deployHash && (
+                                        <a
+                                            href={`https://testnet.cspr.live/deploy/${inv.deployHash}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--flow-cyan)]/10 text-[var(--flow-cyan)] text-sm font-medium hover:bg-[var(--flow-cyan)]/20 transition-colors"
+                                            title="View on Explorer"
+                                        >
+                                            <Shield className="w-3 h-3" />
+                                            Verified
+                                            <ExternalLink className="w-3 h-3" />
+                                        </a>
+                                    )}
+
+                                    {inv.isFunded ? (
+                                        <span className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[var(--flow-green)]/20 text-[var(--flow-green)] font-medium">
+                                            <Check className="w-4 h-4" /> Funded
+                                        </span>
+                                    ) : (
+                                        <button
+                                            onClick={() => handleInvest(inv)}
+                                            disabled={!!investingId}
+                                            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[var(--flow-cyan)] to-[var(--flow-purple)] text-white font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+                                        >
+                                            {investingId === inv.id ? (
+                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                            ) : (
+                                                <>Invest Now</>
+                                            )}
+                                        </button>
+                                    )}
                                 </div>
                             </div>
-                        </motion.div>
+                        </GlowingCard>
                     </motion.div>
-                )}
-            </AnimatePresence>
-        </div>
+                ))}
+            </div>
+        )}
+    </AnimatePresence>
+
+    {/* Empty State */ }
+    {
+        filteredInvoices.length === 0 && (
+            <div className="text-center py-20">
+                <div className="w-20 h-20 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-6">
+                    <Search className="w-8 h-8 text-[var(--flow-text-muted)]" />
+                </div>
+                <p className="text-[var(--flow-text-muted)] mb-4">No invoices found matching your criteria.</p>
+                <Link href="/dashboard" className="text-[var(--flow-cyan)] font-medium hover:underline">
+                    Go to Dashboard to mint your first invoice →
+                </Link>
+            </div>
+        )
+    }
+            </div >
+
+        {/* Success Modal */ }
+        <AnimatePresence>
+    {
+        successTx && (
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/80 backdrop-blur-xl flex items-center justify-center z-50 p-4"
+                onClick={() => setSuccessTx(null)}
+            >
+                <motion.div
+                    initial={{ scale: 0.9, y: 30 }}
+                    animate={{ scale: 1, y: 0 }}
+                    exit={{ scale: 0.9, y: 30 }}
+                    className="bg-[var(--flow-bg-secondary)] rounded-3xl p-8 max-w-md w-full border border-white/10"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    {/* Gradient Top Bar */}
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[var(--flow-cyan)] via-[var(--flow-purple)] to-[var(--flow-pink)] rounded-t-3xl" />
+
+                    <div className="text-center">
+                        {/* Success Icon */}
+                        <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ type: "spring", delay: 0.2 }}
+                            className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-[var(--flow-green)] to-emerald-500 flex items-center justify-center"
+                        >
+                            <Check className="w-10 h-10 text-white" strokeWidth={3} />
+                        </motion.div>
+
+                        <h2 className="text-2xl font-bold text-white mb-2">Investment Successful!</h2>
+                        <p className="text-[var(--flow-text-secondary)] mb-8">
+                            You have successfully funded this Real-World Asset on Casper Network.
+                        </p>
+
+                        {/* Transaction Hash */}
+                        <div className="p-4 rounded-xl bg-white/5 border border-white/10 mb-6 text-left">
+                            <p className="text-xs text-[var(--flow-text-muted)] uppercase tracking-wider mb-1">Transaction Hash</p>
+                            <p className="font-mono text-xs text-[var(--flow-text-secondary)] break-all">{successTx}</p>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex flex-col gap-3">
+                            <a
+                                href={`https://testnet.cspr.live/deploy/${successTx}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-full py-4 rounded-xl font-bold bg-gradient-to-r from-[var(--flow-cyan)] to-[var(--flow-purple)] text-white hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+                            >
+                                View on Explorer <ExternalLink className="w-4 h-4" />
+                            </a>
+                            <button
+                                onClick={() => setSuccessTx(null)}
+                                className="w-full py-4 rounded-xl font-bold bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </motion.div>
+            </motion.div>
+        )
+    }
+            </AnimatePresence >
+        </div >
     );
 }
