@@ -28,12 +28,16 @@ import { MagneticButton, StaggerContainer } from "@/components/immersive/smooth-
 
 // Sample invoices
 const sampleInvoices = [
-    { id: "INV-8821", vendor: "TechCorp Inc.", amount: 12500, score: "A+", yield: "12.5%", term: "30 Days", isNew: false },
-    { id: "INV-9042", vendor: "SolarSystems Ltd", amount: 45000, score: "A", yield: "14.2%", term: "45 Days", isNew: false },
+    { id: "INV-8821", vendor: "TechCorp Inc.", amount: 12500, score: "A+", yield: "12.5%", term: "30 Days", isNew: false, owner: "018596041e21b0213876006437992c90662d529124be37e1975e5812845c4856f7" },
+    { id: "INV-9042", vendor: "SolarSystems Ltd", amount: 45000, score: "A", yield: "14.2%", term: "45 Days", isNew: false, owner: "017d9d058e215a36cea17f7e1dc60950202a4d9d6e4ac827ddd6a6e08a53dfde6" },
     { id: "INV-7712", vendor: "Global Logistics", amount: 8200, score: "B+", yield: "16.8%", term: "60 Days", isNew: false },
     { id: "INV-6651", vendor: "CloudNative SaaS", amount: 15700, score: "A+", yield: "11.9%", term: "15 Days", isNew: false },
     { id: "INV-5523", vendor: "MedTech Solutions", amount: 28300, score: "A", yield: "13.4%", term: "30 Days", isNew: false },
     { id: "INV-4419", vendor: "GreenEnergy Co", amount: 67500, score: "A+", yield: "10.8%", term: "45 Days", isNew: false },
+    { id: "INV-3392", vendor: "Quantum Hardware", amount: 112000, score: "A+", yield: "9.5%", term: "90 Days", isNew: false },
+    { id: "INV-2184", vendor: "EcoFoods Distribution", amount: 9400, score: "B", yield: "15.2%", term: "30 Days", isNew: false },
+    { id: "INV-1175", vendor: "Urban Construction", amount: 56000, score: "A-", yield: "13.1%", term: "60 Days", isNew: false },
+    { id: "INV-9982", vendor: "BioLife Pharma", amount: 89500, score: "A+", yield: "10.2%", term: "45 Days", isNew: false },
 ];
 
 interface MintedInvoice {
@@ -87,7 +91,8 @@ export default function Marketplace() {
                         isFunded: inv.funding_status === 'funded',
                         deployHash: inv.deploy_hash,
                         ipfsUrl: inv.ipfs_url,
-                        mintedAt: inv.created_at
+                        mintedAt: inv.created_at,
+                        owner: inv.owner_address // Capture owner address for payment
                     }));
                 }
             }
@@ -151,28 +156,33 @@ export default function Marketplace() {
             const CHAIN_NAME = process.env.NEXT_PUBLIC_CASPER_CHAIN_NAME || "casper-test";
 
             // FlowFi Vault receives portion, rest goes to invoice owner
+            // If invoice has a known owner wallet, we pay them. Otherwise fallback to Main Vault.
             const FLOWFI_VAULT_PUBLIC_KEY = "0106ca7c39cd272dbf21a86eeb3b36b7c26e2e9b94af64292419f7862936bca2ca";
+            const recipientAddress = (invoice as any).owner || FLOWFI_VAULT_PUBLIC_KEY;
 
             const senderKey = CLPublicKey.fromHex(activeKey);
-            const vaultKey = CLPublicKey.fromHex(FLOWFI_VAULT_PUBLIC_KEY);
+            const recipientKey = CLPublicKey.fromHex(recipientAddress);
+            // Optional: Split payment logic if needed, for now simplistic direct payment
 
             // Calculate investment amount based on invoice value (in CSPR)
-            // Using 98% LTV - investor pays 98% of invoice value
-            const invoiceValueCSPR = Math.floor((invoice.amount * 0.98) / 0.0245); // Convert USD to CSPR at ~$0.0245
-            const investmentMotes = Math.max(invoiceValueCSPR * 1_000_000_000, 2_500_000_000); // Min 2.5 CSPR
-            const platformFeeMotes = Math.floor(investmentMotes * 0.02); // 2% platform fee
-            const ownerPaymentMotes = investmentMotes - platformFeeMotes;
+            const csprPrice = 0.0245; // Fixed for demo stability
+            const invoiceValueCSPR = Math.floor((invoice.amount) / csprPrice);
+            // Cap max investment for demo purposes to avoid huge testnet drain
+            const investmentMotes = Math.min(Math.floor(invoiceValueCSPR * 1_000_000_000), 50_000_000_000); // Max 50 CSPR for demo safety
 
-            // Create transfer to vault (platform fee + escrow)
+            // Create transfer to invoice owner
             const deployParams = new DeployUtil.DeployParams(senderKey, CHAIN_NAME, 1, 1800000);
             const session = DeployUtil.ExecutableDeployItem.newTransfer(
                 investmentMotes,
-                vaultKey,
+                recipientKey,
                 null,
                 Date.now()
             );
             const payment = DeployUtil.standardPayment(100_000_000); // 0.1 CSPR gas
             const deploy = DeployUtil.makeDeploy(deployParams, session, payment);
+
+            // eslint-disable-next-line
+            console.log(`💸 Paying ${investmentMotes.toString()} motes to ${recipientAddress}`);
 
             const deployJson = DeployUtil.deployToJson(deploy);
 

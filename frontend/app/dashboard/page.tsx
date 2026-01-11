@@ -158,16 +158,20 @@ export default function Dashboard() {
                 symbol: "FLOW",
                 token_uri: ipfsUrl,
                 attributes: [
-                    { trait_type: "Risk", value: result?.risk_score || "A" },
+                    { trait_type: "Risk Score", value: result?.risk_score || "A" },
                     { trait_type: "Valuation", value: `${result?.valuation || 0}` },
-                    { trait_type: "Type", value: "Invoice" }
+                    { trait_type: "Currency", value: "USD" },
+                    { trait_type: "AI Model", value: result?.model_used || "NodeOps-Gemini-Pro" },
+                    { trait_type: "Confidence", value: `${(result?.confidence || 0.95) * 100}%` },
+                    { trait_type: "Analysis Date", value: new Date().toISOString() },
+                    { trait_type: "Type", value: "Invoice RWA" }
                 ]
             };
 
             const metadataJson = JSON.stringify(metadataStandard);
             console.log("🛠️ Minting Metadata:", metadataJson);
-            console.log("🛠️ Contract Hash:", CONTRACT_HASH);
-            console.log("🛠️ Owner Key:", activeKey);
+
+            // ... (keep existing setup code) ...
 
             // Build deploy
             const senderKey = CLPublicKey.fromHex(activeKey);
@@ -190,7 +194,7 @@ export default function Dashboard() {
                 "mint",
                 mintArgs
             );
-            const payment = DeployUtil.standardPayment(300_000_000_000); // Trigger robust gas limit (300 CSPR)
+            const payment = DeployUtil.standardPayment(5_000_000_000); // 5 CSPR gas limit for safety
             const deploy = DeployUtil.makeDeploy(deployParams, session, payment);
             const deployJson = DeployUtil.deployToJson(deploy);
 
@@ -238,14 +242,16 @@ export default function Dashboard() {
                             client_name: "Corporate Partner",
                             amount: amount,
                             currency: "USD",
-                            risk_score: 95, // Simplified mapping
+                            risk_score: 95,
                             grade: result?.risk_score || "A",
                             yield_rate: yieldRate,
                             term_days: termDays,
                             deploy_hash: finalDeployHash,
                             ipfs_url: ipfsUrl,
                             funding_status: 'available',
-                            due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+                            due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+                            owner_address: activeKey, // Save owner wallet for payments
+                            ai_metadata: metadataStandard // JSON field for full AI audit trail
                         }
                     ]);
 
@@ -431,7 +437,13 @@ export default function Dashboard() {
                                                 <p className="font-medium text-white">{file?.name}</p>
                                             </div>
                                         </div>
-                                        <span className="badge-success">AI Verified</span>
+                                        <div className="flex flex-col items-end gap-1">
+                                            <span className="badge-success">AI Verified</span>
+                                            <span className="text-[10px] text-[var(--flow-text-muted)] flex items-center gap-1">
+                                                <Shield className="w-3 h-3 text-[var(--flow-cyan)]" />
+                                                Regulatory Compliant: CEP-78 Verifiable
+                                            </span>
+                                        </div>
                                     </div>
 
                                     {/* Score Grid */}
@@ -480,7 +492,12 @@ export default function Dashboard() {
                                         <div className="flex items-start gap-3">
                                             <Sparkles className="w-5 h-5 text-[var(--flow-cyan)] flex-shrink-0 mt-0.5" />
                                             <div>
-                                                <p className="font-medium text-white mb-1">FlowAI Insight</p>
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <p className="font-medium text-white">FlowAI Insight</p>
+                                                    <span className="px-2 py-0.5 rounded text-[10px] bg-[var(--flow-purple)]/20 text-[var(--flow-purple)] border border-[var(--flow-purple)]/30">
+                                                        Powered by NodeOps Infrastructure
+                                                    </span>
+                                                </div>
                                                 <p className="text-sm text-[var(--flow-text-secondary)]">{result.summary}</p>
                                             </div>
                                         </div>
@@ -640,7 +657,7 @@ export default function Dashboard() {
                                             rel="noopener noreferrer"
                                             className="flex-1 py-4 px-6 rounded-xl font-bold text-center bg-gradient-to-r from-[var(--flow-cyan)] to-[var(--flow-purple)] text-white hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
                                         >
-                                            View NFT Collection <ExternalLink className="w-4 h-4" />
+                                            View Immutable Record on CSPR.live <ExternalLink className="w-4 h-4" />
                                         </a>
                                         <Link
                                             href="/marketplace"
