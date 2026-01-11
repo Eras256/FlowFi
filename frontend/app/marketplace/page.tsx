@@ -66,7 +66,7 @@ export default function Marketplace() {
     const [searchQuery, setSearchQuery] = useState("");
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
-    // Load minted invoices from Supabase
+    // Load minted invoices from localStorage and Supabase
     useEffect(() => {
         const loadInvoices = async () => {
             let dbInvoices: any[] = [];
@@ -74,48 +74,78 @@ export default function Marketplace() {
             // 1. Try to fetch from Supabase (if configured)
             const supabaseClient = getSupabaseClient();
             if (supabaseClient) {
-                const { data, error } = await supabaseClient
-                    .from('invoices')
-                    .select('*')
-                    .order('created_at', { ascending: false });
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('invoices')
+                        .select('*')
+                        .order('created_at', { ascending: false });
 
-                if (data) {
-                    dbInvoices = data.map((inv: any) => ({
-                        id: inv.invoice_id,
-                        vendor: inv.vendor_name,
-                        amount: inv.amount,
-                        score: inv.grade || "A",
-                        yield: inv.yield_rate || "12.5%",
-                        term: inv.term_days || "30 Days",
-                        isNew: true,
-                        isFunded: inv.funding_status === 'funded',
-                        deployHash: inv.deploy_hash,
-                        ipfsUrl: inv.ipfs_url,
-                        mintedAt: inv.created_at,
-                        owner: inv.owner_address // Capture owner address for payment
-                    }));
+                    if (data && !error) {
+                        dbInvoices = data.map((inv: any) => ({
+                            id: inv.invoice_id,
+                            vendor: inv.vendor_name,
+                            amount: inv.amount,
+                            score: inv.grade || "A",
+                            yield: inv.yield_rate || "12.5%",
+                            term: inv.term_days || "30 Days",
+                            isNew: true,
+                            isFunded: inv.funding_status === 'funded',
+                            deployHash: inv.deploy_hash,
+                            ipfsUrl: inv.ipfs_url,
+                            mintedAt: inv.created_at,
+                            owner: inv.owner_address
+                        }));
+                    }
+                } catch (e) {
+                    console.log("Supabase not configured, using localStorage");
                 }
             }
 
-            // 2. Fallback to localStorage if DB empty or error (optional, but good for demo continuity)
+            // 2. Always load from localStorage (primary for demo)
             const stored = localStorage.getItem("flowfi_minted_invoices");
             let localInvoices: any[] = [];
             if (stored) {
-                localInvoices = JSON.parse(stored);
+                try {
+                    localInvoices = JSON.parse(stored).map((inv: any) => ({
+                        ...inv,
+                        isNew: true
+                    }));
+                } catch (e) {
+                    console.error("Failed to parse localStorage invoices");
+                }
             }
 
-            // Merge: Prefer DB, then Local, then Static Samples
-            // actually simplify: just use DB + Samples. If DB fails, use Local + Samples.
-            const sourceInvoices = dbInvoices.length > 0 ? dbInvoices : localInvoices;
+            // Merge: DB invoices + Local invoices (dedup by id) + Sample invoices
+            const allMinted = [...dbInvoices, ...localInvoices];
+            const mintedIds = new Set(allMinted.map(i => i.id));
+            const uniqueMinted = allMinted.filter((inv, idx, arr) =>
+                arr.findIndex(i => i.id === inv.id) === idx
+            );
 
-            const existingIds = new Set(sampleInvoices.map(i => i.id));
-            const uniqueMinted = sourceInvoices.filter((m: any) => !existingIds.has(m.id));
+            // Add sample invoices that don't conflict
+            const samplesFiltered = sampleInvoices.filter(s => !mintedIds.has(s.id));
 
-            setInvoices([...uniqueMinted, ...sampleInvoices]);
+            setInvoices([...uniqueMinted, ...samplesFiltered]);
+            console.log(`📦 Loaded ${uniqueMinted.length} minted + ${samplesFiltered.length} sample invoices`);
         };
 
         loadInvoices();
-        // window.addEventListener("storage", loadInvoices); // Supabase replaces this need mostly
+
+        // Listen for storage changes (when minting in another tab)
+        const handleStorageChange = (e: StorageEvent) => {
+            if (e.key === "flowfi_minted_invoices") {
+                loadInvoices();
+            }
+        };
+        window.addEventListener("storage", handleStorageChange);
+
+        // Also refresh every 5 seconds for demo reliability
+        const interval = setInterval(loadInvoices, 5000);
+
+        return () => {
+            window.removeEventListener("storage", handleStorageChange);
+            clearInterval(interval);
+        };
     }, []);
 
     const sendDeployToNetwork = async (signedDeployJson: any): Promise<string> => {
