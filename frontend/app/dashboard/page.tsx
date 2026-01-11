@@ -148,43 +148,86 @@ export default function Dashboard() {
                 ipfsUrl = `ipfs://QmFlowFiInvoice${Date.now().toString(36)}`;
             }
 
-            // FIXED: Correct Metadata Structure for CEP-78 (Standard JSON)
-            // Error 91 often relates to invalid JSON schema validation.
-            // We use a strictly formatted JSON object that adheres to the standard.
+            // CEP-78 STANDARD METADATA FORMAT (Required: name, token_uri, checksum)
+            // This format is REQUIRED by the contract - Error 88 occurs with other formats
             const tokenId = `${Date.now().toString(36)}-${Math.floor(Math.random() * 1000)}`.toUpperCase();
+
+            // Generate checksum (64 hex chars - using simple hash for demo)
+            const checksumBase = `${tokenId}-${ipfsUrl}-${Date.now()}`;
+            const checksum = Array.from(checksumBase)
+                .reduce((acc, char) => acc + char.charCodeAt(0).toString(16), '')
+                .padEnd(64, '0')
+                .slice(0, 64);
 
             const metadataStandard = {
                 name: `FlowFi Invoice #${tokenId}`,
-                symbol: "FLOW",
                 token_uri: ipfsUrl,
-                attributes: [
-                    { trait_type: "Risk Score", value: result?.risk_score || "A" },
-                    { trait_type: "Valuation", value: `${result?.valuation || 0}` },
-                    { trait_type: "Currency", value: "USD" },
-                    { trait_type: "AI Model", value: result?.model_used || "NodeOps-Gemini-Pro" },
-                    { trait_type: "Confidence", value: `${(result?.confidence || 0.95) * 100}%` },
-                    { trait_type: "Analysis Date", value: new Date().toISOString() },
-                    { trait_type: "Type", value: "Invoice RWA" }
-                ]
+                checksum: checksum
             };
 
             const metadataJson = JSON.stringify(metadataStandard);
-            console.log("🛠️ Minting Metadata:", metadataJson);
+            console.log("🛠️ Minting Metadata (CEP-78 Format):", metadataJson);
 
             // ... (keep existing setup code) ...
 
             // Build deploy
             const senderKey = CLPublicKey.fromHex(activeKey);
             const contractHashBytes = Uint8Array.from(
-                Buffer.from(CONTRACT_HASH.replace("contract-", ""), "hex")
+                Buffer.from(CONTRACT_HASH.replace("contract-", "").replace("hash-", ""), "hex")
             );
 
-            // Use Key factory correctly for token_owner
-            const ownerAccountHash = new CLAccountHash(senderKey.toAccountHash());
-            const ownerKey = new CLKey(ownerAccountHash);
+            // STEP 1: Register Owner (Required before first mint for this user)
+            // This is a CEP-78 requirement for contracts with certain ownership modes
+            console.log("📝 Step 1: Registering owner...");
 
+            const registerArgs = RuntimeArgs.fromMap({
+                "token_owner": CLValueBuilder.key(senderKey)
+            });
+
+            const registerDeployParams = new DeployUtil.DeployParams(senderKey, CHAIN_NAME, 1, 1800000);
+            const registerSession = DeployUtil.ExecutableDeployItem.newStoredContractByHash(
+                contractHashBytes,
+                "register_owner",
+                registerArgs
+            );
+            const registerPayment = DeployUtil.standardPayment(3_000_000_000); // 3 CSPR for register
+            const registerDeploy = DeployUtil.makeDeploy(registerDeployParams, registerSession, registerPayment);
+            const registerDeployJson = DeployUtil.deployToJson(registerDeploy);
+
+            // Sign register deploy
+            const registerSignatureHex = await signDeploy(JSON.stringify(registerDeployJson));
+            const registerKeyType = activeKey.substring(0, 2);
+            let registerFinalSignature = registerSignatureHex;
+            if (!registerFinalSignature.startsWith(registerKeyType)) {
+                registerFinalSignature = `${registerKeyType}${registerSignatureHex}`;
+            }
+
+            const signedRegisterDeployJson = {
+                deploy: {
+                    ...(registerDeployJson as any).deploy,
+                    approvals: [{
+                        signer: activeKey,
+                        signature: registerFinalSignature
+                    }]
+                }
+            };
+
+            // Send register deploy (fire and forget - if already registered it will fail silently)
+            try {
+                await sendDeployToNetwork(signedRegisterDeployJson);
+                console.log("✅ Register owner sent, waiting 5s...");
+                await new Promise(r => setTimeout(r, 5000)); // Wait for registration
+            } catch (regErr) {
+                console.log("ℹ️ Register may already exist or completed:", regErr);
+                // Continue with mint even if register fails (user might already be registered)
+            }
+
+            // STEP 2: Mint NFT
+            console.log("🎨 Step 2: Minting NFT...");
+
+            // Use CLValueBuilder.key (same format as working test script)
             const mintArgs = RuntimeArgs.fromMap({
-                "token_owner": ownerKey,
+                "token_owner": CLValueBuilder.key(senderKey),
                 "token_meta_data": CLValueBuilder.string(metadataJson)
             });
 
@@ -194,7 +237,7 @@ export default function Dashboard() {
                 "mint",
                 mintArgs
             );
-            const payment = DeployUtil.standardPayment(5_000_000_000); // 5 CSPR gas limit for safety
+            const payment = DeployUtil.standardPayment(10_000_000_000); // 10 CSPR gas limit (tested amount)
             const deploy = DeployUtil.makeDeploy(deployParams, session, payment);
             const deployJson = DeployUtil.deployToJson(deploy);
 
@@ -481,8 +524,10 @@ export default function Dashboard() {
                                                 <p className="text-2xl font-bold text-[var(--flow-cyan)]">{(result.confidence * 100).toFixed(0)}%</p>
                                             </div>
                                             <div className="p-4 rounded-xl bg-white/5 border border-white/10 text-center">
-                                                <p className="text-xs text-[var(--flow-text-muted)] mb-1">AI Model</p>
-                                                <p className="text-lg font-bold text-white">{result.model_used || "Hybrid"}</p>
+                                                <p className="text-gray-400 text-sm">AI Model</p>
+                                                <p className="font-mono text-cyan-400">
+                                                    {result.model_used === "Hybrid" ? "Hybrid: Local Engine + Gemini Pro" : (result.model_used || "Hybrid: Local Engine + Gemini Pro")}
+                                                </p>
                                             </div>
                                         </div>
                                     )}
