@@ -148,22 +148,26 @@ export default function Dashboard() {
                 ipfsUrl = `ipfs://QmFlowFiInvoice${Date.now().toString(36)}`;
             }
 
-            // Create metadata
+            // FIXED: Correct Metadata Structure for CEP-78 (Standard JSON)
+            // Error 91 often relates to invalid JSON schema validation.
+            // We use a strictly formatted JSON object that adheres to the standard.
             const tokenId = `${Date.now().toString(36)}-${Math.floor(Math.random() * 1000)}`.toUpperCase();
-            const metadata = JSON.stringify({
+
+            const metadataStandard = {
                 name: `FlowFi Invoice #${tokenId}`,
                 symbol: "FLOW",
                 token_uri: ipfsUrl,
-                checksum: "",
                 attributes: [
-                    { trait_type: "Risk Score", value: result?.risk_score || "A" },
-                    { trait_type: "Valuation", value: `$${result?.valuation?.toLocaleString() || "0"}` },
-                    { trait_type: "Confidence", value: `${((result?.confidence || 0.99) * 100).toFixed(0)}%` },
-                    { trait_type: "Quantum Score", value: result?.quantum_score?.toFixed(1) || "N/A" },
-                    { trait_type: "Document Type", value: "Invoice" },
-                    { trait_type: "Minted On", value: new Date().toISOString() }
+                    { trait_type: "Risk", value: result?.risk_score || "A" },
+                    { trait_type: "Valuation", value: `${result?.valuation || 0}` },
+                    { trait_type: "Type", value: "Invoice" }
                 ]
-            });
+            };
+
+            const metadataJson = JSON.stringify(metadataStandard);
+            console.log("🛠️ Minting Metadata:", metadataJson);
+            console.log("🛠️ Contract Hash:", CONTRACT_HASH);
+            console.log("🛠️ Owner Key:", activeKey);
 
             // Build deploy
             const senderKey = CLPublicKey.fromHex(activeKey);
@@ -171,12 +175,13 @@ export default function Dashboard() {
                 Buffer.from(CONTRACT_HASH.replace("contract-", ""), "hex")
             );
 
+            // Use Key factory correctly for token_owner
             const ownerAccountHash = new CLAccountHash(senderKey.toAccountHash());
             const ownerKey = new CLKey(ownerAccountHash);
 
             const mintArgs = RuntimeArgs.fromMap({
                 "token_owner": ownerKey,
-                "token_meta_data": CLValueBuilder.string(metadata)
+                "token_meta_data": CLValueBuilder.string(metadataJson)
             });
 
             const deployParams = new DeployUtil.DeployParams(senderKey, CHAIN_NAME, 1, 1800000);
@@ -185,29 +190,21 @@ export default function Dashboard() {
                 "mint",
                 mintArgs
             );
-            const payment = DeployUtil.standardPayment(50_000_000_000);
+            const payment = DeployUtil.standardPayment(300_000_000_000); // Trigger robust gas limit (300 CSPR)
             const deploy = DeployUtil.makeDeploy(deployParams, session, payment);
             const deployJson = DeployUtil.deployToJson(deploy);
-            const preDeployHash = Buffer.from(deploy.hash).toString('hex');
 
             // Sign
             const signatureHex = await signDeploy(JSON.stringify(deployJson));
 
-            // Fix signature prefix based on key type
-            // activeKey starts with 01 (Ed25519) or 02 (Secp256k1)
+            // Fix signature prefix logic
             const keyType = activeKey.substring(0, 2);
             let finalSignature = signatureHex;
-
-            // Check if signature already has the correct prefix
-            // Ed25519 signatures are usually 128 chars + 2 prefix
-            // Secp256k1 signatures are 128 chars + 2 prefix
             if (!finalSignature.startsWith(keyType)) {
                 finalSignature = `${keyType}${signatureHex}`;
             }
 
-            // Construct the final JSON expected by the backend/RPC
-            // DeployUtil.deployToJson returns { deploy: { ... } }
-            // We need to put the signature inside that inner deploy object
+            // Construct final JSON
             const signedDeployJson = {
                 deploy: {
                     ...(deployJson as any).deploy,
@@ -219,12 +216,8 @@ export default function Dashboard() {
             };
 
             // Try to send
-            let finalDeployHash: string;
-            try {
-                finalDeployHash = await sendDeployToNetwork(signedDeployJson);
-            } catch {
-                finalDeployHash = preDeployHash;
-            }
+            // Send to network (REAL TRANSACTION)
+            const finalDeployHash = await sendDeployToNetwork(signedDeployJson);
 
             // Save to Supabase (primary) and localStorage (backup)
             const invoiceId = `INV-${tokenId}`;
@@ -466,7 +459,7 @@ export default function Dashboard() {
 
                                     {/* Advanced Metrics */}
                                     {result.quantum_score && (
-                                        <div className="grid grid-cols-3 gap-4 mb-8">
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
                                             <div className="p-4 rounded-xl bg-white/5 border border-white/10 text-center">
                                                 <p className="text-xs text-[var(--flow-text-muted)] mb-1">Quantum Score</p>
                                                 <p className="text-2xl font-bold text-[var(--flow-purple)]">{result.quantum_score.toFixed(1)}</p>

@@ -231,8 +231,8 @@ export default function Analytics() {
                                 key={tab.key}
                                 onClick={() => setActiveTab(tab.key as any)}
                                 className={`flex items-center gap-2 px-5 py-3 rounded-xl font-medium text-sm transition-all ${activeTab === tab.key
-                                        ? "bg-gradient-to-r from-[var(--flow-cyan)] to-[var(--flow-purple)] text-white"
-                                        : "text-[var(--flow-text-secondary)] hover:text-white"
+                                    ? "bg-gradient-to-r from-[var(--flow-cyan)] to-[var(--flow-purple)] text-white"
+                                    : "text-[var(--flow-text-secondary)] hover:text-white"
                                     }`}
                             >
                                 <tab.icon className="w-4 h-4" />
@@ -261,8 +261,8 @@ export default function Analytics() {
                                     key={tf}
                                     onClick={() => setTimeframe(tf)}
                                     className={`px-4 py-3 text-sm font-medium transition-all ${timeframe === tf
-                                            ? "bg-[var(--flow-cyan)]/20 text-[var(--flow-cyan)]"
-                                            : "bg-white/5 text-[var(--flow-text-muted)] hover:text-white"
+                                        ? "bg-[var(--flow-cyan)]/20 text-[var(--flow-cyan)]"
+                                        : "bg-white/5 text-[var(--flow-text-muted)] hover:text-white"
                                         }`}
                                 >
                                     {tf}
@@ -311,12 +311,12 @@ export default function Analytics() {
                                             {/* Table Header */}
                                             <div className="grid grid-cols-12 gap-4 p-4 border-b border-white/10 text-xs text-[var(--flow-text-muted)] uppercase tracking-wider">
                                                 <div className="col-span-1">#</div>
-                                                <div className="col-span-3">Token</div>
-                                                <div className="col-span-2 text-right">Price</div>
-                                                <div className="col-span-1 text-right">24h</div>
-                                                <div className="col-span-2 text-right">Volume</div>
-                                                <div className="col-span-2 text-right">Market Cap</div>
-                                                <div className="col-span-1 text-center">Chart</div>
+                                                <div className="col-span-5 md:col-span-3">Token</div>
+                                                <div className="col-span-3 md:col-span-2 text-right">Price</div>
+                                                <div className="col-span-3 md:col-span-1 text-right">24h</div>
+                                                <div className="hidden md:block col-span-2 text-right">Volume</div>
+                                                <div className="hidden md:block col-span-2 text-right">Market Cap</div>
+                                                <div className="hidden md:block col-span-1 text-center">Chart</div>
                                             </div>
 
                                             {/* Token Rows */}
@@ -344,33 +344,33 @@ export default function Analytics() {
                                                         <span className="text-[var(--flow-text-muted)]">{i + 1}</span>
                                                     </div>
 
-                                                    <div className="col-span-3 flex items-center gap-3">
-                                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--flow-cyan)] to-[var(--flow-purple)] flex items-center justify-center text-xs font-bold text-white">
+                                                    <div className="col-span-5 md:col-span-3 flex items-center gap-3">
+                                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--flow-cyan)] to-[var(--flow-purple)] flex items-center justify-center text-xs font-bold text-white shrink-0">
                                                             {token.symbol.substring(0, 2)}
                                                         </div>
-                                                        <div>
-                                                            <p className="font-medium text-white">{token.name}</p>
+                                                        <div className="min-w-0">
+                                                            <p className="font-medium text-white truncate">{token.name}</p>
                                                             <p className="text-xs text-[var(--flow-text-muted)]">{token.symbol}</p>
                                                         </div>
                                                     </div>
 
-                                                    <div className="col-span-2 text-right">
+                                                    <div className="col-span-3 md:col-span-2 text-right">
                                                         <p className="font-mono font-medium text-white">{formatPrice(token.price_usd)}</p>
                                                     </div>
 
-                                                    <div className="col-span-1 text-right">
+                                                    <div className="col-span-3 md:col-span-1 text-right">
                                                         <PriceChange change={token.price_change_24h} />
                                                     </div>
 
-                                                    <div className="col-span-2 text-right">
+                                                    <div className="hidden md:block col-span-2 text-right">
                                                         <p className="text-[var(--flow-text-secondary)]">{formatNumber(token.volume_24h)}</p>
                                                     </div>
 
-                                                    <div className="col-span-2 text-right">
+                                                    <div className="hidden md:block col-span-2 text-right">
                                                         <p className="text-white">{formatNumber(token.market_cap)}</p>
                                                     </div>
 
-                                                    <div className="col-span-1 flex justify-center">
+                                                    <div className="hidden md:block col-span-1 flex justify-center">
                                                         <MiniChart
                                                             data={Array.from({ length: 24 }, () => token.price_usd * (0.95 + Math.random() * 0.1))}
                                                             positive={token.price_change_24h >= 0}
@@ -454,12 +454,12 @@ export default function Analytics() {
                                         <div className="bg-[var(--flow-bg-secondary)]">
                                             {/* Table Header */}
                                             <div className="grid grid-cols-12 gap-4 p-4 border-b border-white/10 text-xs text-[var(--flow-text-muted)] uppercase tracking-wider">
-                                                <div className="col-span-2">Type</div>
-                                                <div className="col-span-2">Token</div>
-                                                <div className="col-span-2">Amount</div>
-                                                <div className="col-span-3">From</div>
-                                                <div className="col-span-2">Time</div>
-                                                <div className="col-span-1">Status</div>
+                                                <div className="col-span-4 md:col-span-2">Type</div>
+                                                <div className="col-span-3 md:col-span-2">Token</div>
+                                                <div className="col-span-5 md:col-span-2">Amount</div>
+                                                <div className="hidden md:block col-span-3">From</div>
+                                                <div className="hidden md:block col-span-2">Time</div>
+                                                <div className="hidden md:block col-span-1">Status</div>
                                             </div>
 
                                             {/* Transaction Rows */}
@@ -474,37 +474,37 @@ export default function Analytics() {
                                                     transition={{ delay: i * 0.03 }}
                                                     className="grid grid-cols-12 gap-4 p-4 border-b border-white/5 hover:bg-white/5 transition-colors items-center"
                                                 >
-                                                    <div className="col-span-2">
+                                                    <div className="col-span-4 md:col-span-2">
                                                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${tx.type === 'swap' ? 'bg-[var(--flow-cyan)]/20 text-[var(--flow-cyan)]' :
-                                                                tx.type === 'transfer' ? 'bg-[var(--flow-purple)]/20 text-[var(--flow-purple)]' :
-                                                                    tx.type === 'mint' ? 'bg-[var(--flow-green)]/20 text-[var(--flow-green)]' :
-                                                                        tx.type === 'stake' ? 'bg-yellow-500/20 text-yellow-400' :
-                                                                            'bg-white/10 text-white'
+                                                            tx.type === 'transfer' ? 'bg-[var(--flow-purple)]/20 text-[var(--flow-purple)]' :
+                                                                tx.type === 'mint' ? 'bg-[var(--flow-green)]/20 text-[var(--flow-green)]' :
+                                                                    tx.type === 'stake' ? 'bg-yellow-500/20 text-yellow-400' :
+                                                                        'bg-white/10 text-white'
                                                             }`}>
                                                             {tx.type.charAt(0).toUpperCase() + tx.type.slice(1)}
                                                         </span>
                                                     </div>
 
-                                                    <div className="col-span-2">
+                                                    <div className="col-span-3 md:col-span-2">
                                                         <span className="font-medium text-white">{tx.token_symbol}</span>
                                                     </div>
 
-                                                    <div className="col-span-2">
+                                                    <div className="col-span-5 md:col-span-2">
                                                         <span className="font-mono text-[var(--flow-text-secondary)]">{parseFloat(tx.amount).toLocaleString()}</span>
                                                     </div>
 
-                                                    <div className="col-span-3">
+                                                    <div className="hidden md:block col-span-3">
                                                         <span className="font-mono text-xs text-[var(--flow-text-muted)]">
                                                             {tx.from.substring(0, 8)}...{tx.from.substring(tx.from.length - 6)}
                                                         </span>
                                                     </div>
 
-                                                    <div className="col-span-2 flex items-center gap-2 text-[var(--flow-text-muted)]">
+                                                    <div className="hidden md:block col-span-2 flex items-center gap-2 text-[var(--flow-text-muted)]">
                                                         <Clock className="w-3 h-3" />
                                                         <span className="text-xs">{new Date(tx.timestamp).toLocaleTimeString()}</span>
                                                     </div>
 
-                                                    <div className="col-span-1">
+                                                    <div className="hidden md:block col-span-1">
                                                         {tx.status === 'success' ? (
                                                             <span className="flex items-center gap-1 text-[var(--flow-green)] text-xs">
                                                                 <Zap className="w-3 h-3" /> Success

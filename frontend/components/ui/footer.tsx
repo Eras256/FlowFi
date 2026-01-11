@@ -29,10 +29,7 @@ export default function Footer() {
     };
 
     const socialLinks = [
-        { icon: Twitter, href: "#", label: "Twitter" },
-        { icon: Github, href: "#", label: "GitHub" },
-        { icon: Linkedin, href: "#", label: "LinkedIn" },
-        { icon: MessageCircle, href: "#", label: "Discord" },
+        { icon: Linkedin, href: "https://www.linkedin.com/company/flowficasper/about/?viewAsMember=true", label: "LinkedIn" },
     ];
 
     return (
@@ -151,7 +148,7 @@ export default function Footer() {
                     {/* Copyright */}
                     <FadeInSection direction="up" delay={0.4}>
                         <div className="flex flex-col md:flex-row items-center gap-4 text-sm text-[var(--flow-text-muted)]">
-                            <p>© {currentYear} FlowFi Inc. All rights reserved.</p>
+                            <p>© {currentYear} Develop by Vaiosx Made by FlowFi Team</p>
                             <span className="hidden md:block">•</span>
                             <p className="flex items-center gap-2">
                                 Built for{" "}

@@ -173,8 +173,8 @@ export default function Home() {
                                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--flow-cyan)] opacity-75" />
                                         <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--flow-cyan)]" />
                                     </span>
-                                    <span className="text-[var(--flow-text-secondary)]">Live on</span>
-                                    <span className="text-white font-medium">Casper Testnet 2.0</span>
+                                    <span className="text-[var(--flow-text-secondary)]">Project on</span>
+                                    <span className="text-white font-medium">Casper Network</span>
                                 </span>
                             </motion.div>
 
@@ -315,7 +315,7 @@ export default function Home() {
             </section>
 
             {/* ===== STATS SECTION ===== */}
-            <section className="py-24 relative">
+            <section className="py-12 md:py-24 relative">
                 <div className="container mx-auto px-6">
                     <ScaleOnScroll>
                         <div className="glass rounded-3xl p-8 md:p-12 border border-white/10">
@@ -344,14 +344,14 @@ export default function Home() {
             </section>
 
             {/* ===== HOW IT WORKS SECTION ===== */}
-            <section ref={processRef} className="py-32 relative overflow-hidden">
+            <section ref={processRef} className="py-16 md:py-32 relative overflow-hidden">
                 {/* Background Decoration */}
                 <div className="absolute left-0 top-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
                 <div className="absolute right-0 top-1/2 w-1/2 h-px bg-gradient-to-l from-transparent via-white/10 to-transparent" />
 
                 <div className="container mx-auto px-6">
                     {/* Section Header */}
-                    <div className="text-center max-w-3xl mx-auto mb-20">
+                    <div className="text-center max-w-3xl mx-auto mb-12 md:mb-20">
                         <FadeInSection>
                             <span className="badge-premium mb-4 inline-block">How It Works</span>
                         </FadeInSection>
@@ -416,13 +416,13 @@ export default function Home() {
             </section>
 
             {/* ===== FEATURES SECTION ===== */}
-            <section ref={featuresRef} className="py-32 relative">
+            <section ref={featuresRef} className="py-16 md:py-32 relative">
                 {/* Background */}
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[var(--flow-cyan)]/5 to-transparent pointer-events-none" />
 
                 <div className="container mx-auto px-6 relative z-10">
                     {/* Section Header */}
-                    <div className="text-center max-w-3xl mx-auto mb-20">
+                    <div className="text-center max-w-3xl mx-auto mb-12 md:mb-20">
                         <FadeInSection>
                             <span className="badge-success mb-4 inline-block">Features</span>
                         </FadeInSection>
@@ -463,7 +463,7 @@ export default function Home() {
             </section>
 
             {/* ===== CTA SECTION ===== */}
-            <section className="py-32 relative overflow-hidden">
+            <section className="py-16 md:py-32 relative overflow-hidden">
                 <div className="container mx-auto px-6">
                     <ScaleOnScroll>
                         <div className="relative rounded-3xl overflow-hidden">
@@ -475,7 +475,7 @@ export default function Home() {
                             <div className="absolute inset-0 bg-grid opacity-50" />
 
                             {/* Content */}
-                            <div className="relative z-10 py-20 px-8 md:px-16 text-center">
+                            <div className="relative z-10 py-12 md:py-20 px-8 md:px-16 text-center">
                                 <FadeInSection>
                                     <Sparkles className="w-12 h-12 text-[var(--flow-cyan)] mx-auto mb-6" />
                                 </FadeInSection>

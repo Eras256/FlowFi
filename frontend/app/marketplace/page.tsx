@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Search,
-    Filter,
     ArrowUpRight,
     Shield,
     Zap,
@@ -305,7 +304,7 @@ export default function Marketplace() {
                         </div>
 
                         {/* Quick Stats */}
-                        <div className="grid grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div className="p-4 rounded-xl bg-white/5 border border-white/10 text-center">
                                 <p className="text-2xl font-bold text-gradient">
                                     <AnimatedCounter to={totalVolume / 1000} suffix="K" prefix="$" />
