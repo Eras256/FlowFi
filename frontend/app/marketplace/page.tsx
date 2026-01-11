@@ -139,7 +139,9 @@ export default function Marketplace() {
             const mintedIds = new Set(allMinted.map(i => i.id));
 
             // Filter out unwanted legacy data (names looking like filenames)
-            const blockedNames = ["FlowFi Vendor"];
+            const blockedNames = [
+                "DAGlossary", "DABibliography", "DASSM", "PMI", "Workbook", "Handout", "ResourcesByLesson", "Participant", "FlowFi Vendor"
+            ];
 
             const uniqueMinted = allMinted.filter((inv, idx, arr) => {
                 // Deduplicate
