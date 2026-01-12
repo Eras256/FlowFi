@@ -12,7 +12,7 @@ const HTTPS_NODE_URL = 'https://node.testnet.cspr.cloud/rpc';
 const ACCESS_TOKEN = '019b9f79-2cd4-7e83-a46e-65f3bc6c51bd';
 const NETWORK_NAME = 'casper-test';
 const KEY_PATH = '/home/vaiosvaios/CasperFlow-1/keys/temp_admin.pem';
-const CONTRACT_HASH = 'hash-751bca3f85b61b4b8e881ceba32b10db125911834bfa30e79f3dc84f18244016';
+const CONTRACT_HASH = 'hash-efc6a6f5e51c3a8cf993d9b58f6ebd03155f9eb7f013eedcab5709688938eb0f';
 
 async function registerAndMint() {
     console.log("🧪 STEP 1: Registering Owner...");

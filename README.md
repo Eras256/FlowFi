@@ -66,8 +66,8 @@ Dexscreener-style market intelligence powered by **CSPR.cloud Market Data API**:
 
 | Property | Value |
 |----------|-------|
-| **Contract Package** | [`113fd0f7...e4623`](https://testnet.cspr.live/contract-package/113fd0f7f4f803e2401a9547442e2ca31bd9001b4fcd803eaff7a3dac11e4623) |
-| **Contract Hash** | `hash-751bca3f85b61b4b8e881ceba32b10db125911834bfa30e79f3dc84f18244016` |
+| **Contract Package** | [`717b9ca1...78f07`](https://testnet.cspr.live/contract-package/717b9ca1ef2134a71ac38ccee216dc6e782c8c6d9c95a7355cf4a5c17be78f07) |
+| **Contract Hash** | `hash-efc6a6f5e51c3a8cf993d9b58f6ebd03155f9eb7f013eedcab5709688938eb0f` |
 | **Collection** | FlowFi Invoices (FLOW) |
 | **Minting Mode** | ✅ Public (Permissionless) |
 | **Total Supply** | 100,000 NFTs |
@@ -152,8 +152,8 @@ pnpm dev
 ```env
 # Casper Network
 NEXT_PUBLIC_CASPER_CHAIN_NAME=casper-test
-NEXT_PUBLIC_CASPER_CONTRACT_HASH=751bca3f85b61b4b8e881ceba32b10db125911834bfa30e79f3dc84f18244016
-NEXT_PUBLIC_CASPER_CONTRACT_PACKAGE_HASH=113fd0f7f4f803e2401a9547442e2ca31bd9001b4fcd803eaff7a3dac11e4623
+NEXT_PUBLIC_CASPER_CONTRACT_HASH=efc6a6f5e51c3a8cf993d9b58f6ebd03155f9eb7f013eedcab5709688938eb0f
+NEXT_PUBLIC_CASPER_CONTRACT_PACKAGE_HASH=717b9ca1ef2134a71ac38ccee216dc6e782c8c6d9c95a7355cf4a5c17be78f07
 
 # CSPR.cloud (get from https://console.cspr.build)
 NEXT_PUBLIC_CSPR_CLOUD_ACCESS_TOKEN=your-token
@@ -248,7 +248,7 @@ MIT License. Built with ❤️ for the Casper Hackathon 2026.
 | Resource | Link |
 |----------|------|
 | **Live Demo** | [flowfi-casper.vercel.app](https://flowfi-casper.vercel.app) |
-| **Contract** | [CSPR.live](https://testnet.cspr.live/contract-package/113fd0f7f4f803e2401a9547442e2ca31bd9001b4fcd803eaff7a3dac11e4623) |
+| **Contract** | [CSPR.live](https://testnet.cspr.live/contract-package/717b9ca1ef2134a71ac38ccee216dc6e782c8c6d9c95a7355cf4a5c17be78f07) |
 | **Hackathon** | [DoraHacks](https://dorahacks.io/hackathon/casper-hackathon-2026) |
 | **CSPR.cloud** | [docs.cspr.cloud](https://docs.cspr.cloud) |
 

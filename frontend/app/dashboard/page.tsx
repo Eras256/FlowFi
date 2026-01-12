@@ -29,9 +29,9 @@ import { Card3D, GlowingCard } from "@/components/immersive/cards";
 import { FadeInSection } from "@/components/immersive/animated-text";
 import { MagneticButton } from "@/components/immersive/smooth-scroll";
 
-// Contract configuration
-const CONTRACT_PACKAGE_HASH = process.env.NEXT_PUBLIC_CASPER_CONTRACT_PACKAGE_HASH || "113fd0f7f4f803e2401a9547442e2ca31bd9001b4fcd803eaff7a3dac11e4623";
-const CONTRACT_HASH = process.env.NEXT_PUBLIC_CASPER_CONTRACT_HASH || "contract-2faa3d9bd2009c1988dd45f19cf307b3737ab191a4c16605588936ebb98aaa1a";
+// Contract configuration - v3 with PUBLIC minting mode (fixes Error 36)
+const CONTRACT_PACKAGE_HASH = process.env.NEXT_PUBLIC_CASPER_CONTRACT_PACKAGE_HASH || "717b9ca1ef2134a71ac38ccee216dc6e782c8c6d9c95a7355cf4a5c17be78f07";
+const CONTRACT_HASH = process.env.NEXT_PUBLIC_CASPER_CONTRACT_HASH || "efc6a6f5e51c3a8cf993d9b58f6ebd03155f9eb7f013eedcab5709688938eb0f";
 const CHAIN_NAME = process.env.NEXT_PUBLIC_CASPER_CHAIN_NAME || "casper-test";
 
 type AnalysisResult = {
@@ -155,7 +155,7 @@ export default function Dashboard() {
 
             // CEP-78 STANDARD METADATA FORMAT (Required: name, token_uri, checksum)
             // This format is REQUIRED by the contract - Error 88 occurs with other formats
-            const tokenId = `${Date.now().toString(36)}-${Math.floor(Math.random() * 1000)}`.toUpperCase();
+            const tokenId = `${Date.now().toString(36)}-${Math.floor(Math.random() * 10000)}`.toUpperCase();
 
             // Generate checksum (64 hex chars - using simple hash for demo)
             const checksumBase = `${tokenId}-${ipfsUrl}-${Date.now()}`;

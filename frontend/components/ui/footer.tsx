@@ -18,14 +18,14 @@ export default function Footer() {
         ],
         resources: [
             { name: "Documentation", href: "/developers" },
-            { name: "API Reference", href: "#" },
-            { name: "Whitepaper", href: "#" },
-            { name: "Community", href: "#" },
+            { name: "API Reference", href: "/developers" },
+            { name: "Whitepaper", href: "/whitepaper" },
+            { name: "Community", href: "https://t.me/Vaiosx" },
         ],
         legal: [
-            { name: "Privacy Policy", href: "#" },
-            { name: "Terms of Service", href: "#" },
-            { name: "Compliance", href: "#" },
+            { name: "Privacy Policy", href: "/legal/privacy" },
+            { name: "Terms of Service", href: "/legal/terms" },
+            { name: "Compliance", href: "/legal/compliance" },
         ],
     };
 

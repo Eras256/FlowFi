@@ -15,7 +15,7 @@ const NODE_URL = "https://node.testnet.cspr.cloud/rpc";
 // Usamos el Auth header via fetch si fuera necesario, pero intentaremos standard client primero 
 // Si falla, usaremos el metodo manual como antes.
 const NETWORK_NAME = "casper-test";
-const CONTRACT_HASH = "hash-751bca3f85b61b4b8e881ceba32b10db125911834bfa30e79f3dc84f18244016";
+const CONTRACT_HASH = "hash-efc6a6f5e51c3a8cf993d9b58f6ebd03155f9eb7f013eedcab5709688938eb0f";
 const KEY_PATH = path.resolve(__dirname, "../keys/temp_admin.pem");
 
 // Fetch wrapper for Auth
