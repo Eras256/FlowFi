@@ -414,6 +414,71 @@ export default function Home() {
                 </div>
             </section>
 
+            {/* ===== VOTE PROMO SECTION ===== */}
+            <section className="py-12 md:py-24 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-[var(--flow-purple)]/10 to-[var(--flow-cyan)]/10" />
+                <div className="container mx-auto px-6 relative z-10">
+                    <ScaleOnScroll>
+                        <div className="glass rounded-3xl p-8 md:p-12 border border-[var(--flow-cyan)]/30 relative overflow-hidden group">
+                            {/* Glow Effects */}
+                            <div className="absolute -top-24 -right-24 w-96 h-96 bg-[var(--flow-cyan)]/20 blur-[100px] rounded-full pointer-events-none" />
+                            <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-[var(--flow-purple)]/20 blur-[100px] rounded-full pointer-events-none" />
+
+                            <div className="grid lg:grid-cols-2 gap-12 items-center">
+                                {/* Left: Content */}
+                                <div className="space-y-8 order-2 lg:order-1">
+                                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#FF0000]/10 border border-[#FF0000]/20 text-sm animate-pulse">
+                                        <Trophy className="w-4 h-4 text-[#FF0000]" />
+                                        <span className="text-[#FF0000] font-bold">VOTE NOW • FINAL ROUND</span>
+                                    </div>
+
+                                    <div>
+                                        <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-4">
+                                            Support FlowFi in the <br />
+                                            <span className="text-gradient">Casper Hackathon</span>
+                                        </h2>
+                                        <p className="text-lg text-[var(--flow-text-secondary)] leading-relaxed max-w-xl">
+                                            We need your vote to bring AI-powered liquidity to the world.
+                                            Vote for us on CSPR.fans and get 1000 FAN tokens for free to support the project.
+                                        </p>
+                                    </div>
+
+                                    <div className="flex flex-col sm:flex-row gap-4">
+                                        <MagneticButton>
+                                            <Link href="https://t.me/csprfans_bot" target="_blank" className="btn-primary text-lg px-8 py-4 flex items-center justify-center gap-3 w-full sm:w-auto">
+                                                <Rocket className="w-5 h-5" />
+                                                Vote on Telegram Bot
+                                            </Link>
+                                        </MagneticButton>
+                                    </div>
+
+                                    <p className="text-sm text-[var(--flow-text-muted)] flex items-center gap-2">
+                                        <CheckCircle className="w-4 h-4 text-[var(--flow-green)]" />
+                                        <span>We cover the voting fee (DM us!)</span>
+                                    </p>
+                                </div>
+
+                                {/* Right: Image */}
+                                <div className="relative order-1 lg:order-2">
+                                    <motion.div
+                                        whileHover={{ scale: 1.02 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-[var(--flow-cyan)]/20"
+                                    >
+                                        <div className="absolute inset-0 bg-gradient-to-tr from-[var(--flow-cyan)]/20 to-transparent z-10 pointer-events-none" />
+                                        <img
+                                            src="/vote_promo.png"
+                                            alt="Vote for FlowFi"
+                                            className="w-full h-auto object-cover transform hover:scale-105 transition-transform duration-700"
+                                        />
+                                    </motion.div>
+                                </div>
+                            </div>
+                        </div>
+                    </ScaleOnScroll>
+                </div>
+            </section>
+
             {/* ===== HOW IT WORKS SECTION ===== */}
             <section ref={processRef} className="py-16 md:py-32 relative overflow-hidden">
                 {/* Background Decoration */}
