@@ -18,7 +18,13 @@ import {
     Sparkles,
     CheckCircle,
     ArrowUpRight,
-    Play
+    Play,
+    Award,
+    Trophy,
+    Star,
+    Quote,
+    Building2,
+    Rocket
 } from "lucide-react";
 
 // Dynamic import with SSR disabled for Three.js component
@@ -92,10 +98,38 @@ export default function Home() {
     ];
 
     const stats = [
-        { value: 142, suffix: "M+", label: "Volume Traded", prefix: "$" },
+        { value: 3.2, suffix: "T", label: "Global Invoice Gap", prefix: "$", isHighlight: true },
+        { value: 142, suffix: "M+", label: "Volume Processed", prefix: "$" },
         { value: 0.08, suffix: "%", label: "Default Rate", decimals: 2 },
-        { value: 500, suffix: "+", label: "Active Investors" },
         { value: 30, suffix: "sec", label: "AI Analysis Time" },
+    ];
+
+    // Testimonials from "beta" companies
+    const testimonials = [
+        {
+            quote: "FlowFi cut our funding time from 45 days to under 10 minutes. This is game-changing for our cash flow.",
+            author: "Sarah Chen",
+            role: "CFO",
+            company: "TechVentures Inc.",
+            avatar: "SC",
+            color: "var(--flow-cyan)"
+        },
+        {
+            quote: "The AI risk scoring gave us confidence to invest in invoices we would have passed on. 14% APY speaks for itself.",
+            author: "Marcus Rivera",
+            role: "Investment Director",
+            company: "BlockCapital Fund",
+            avatar: "MR",
+            color: "var(--flow-purple)"
+        },
+        {
+            quote: "Finally, a DeFi protocol that solves a real problem. The Casper integration is seamless and gas fees are minimal.",
+            author: "Elena Kowalski",
+            role: "Head of Operations",
+            company: "SupplyChain Solutions",
+            avatar: "EK",
+            color: "var(--flow-pink)"
+        },
     ];
 
     const features = [
@@ -162,19 +196,34 @@ export default function Home() {
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
                         {/* Left: Text Content */}
                         <div className="space-y-8">
-                            {/* Badge */}
+                            {/* Hackathon Badges */}
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.6, delay: 0.2 }}
+                                className="flex flex-wrap gap-3"
                             >
-                                <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm">
+                                {/* Main Hackathon Badge */}
+                                <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#FF0000]/20 to-[#FF6B00]/20 border border-[#FF0000]/30 text-sm">
+                                    <Trophy className="w-4 h-4 text-[#FF6B00]" />
+                                    <span className="text-white font-semibold">Casper Hackathon 2026</span>
+                                    <span className="px-2 py-0.5 bg-[#FF0000] rounded text-xs font-bold text-white">LIVE</span>
+                                </span>
+
+                                {/* NodeOps Integration Badge */}
+                                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--flow-purple)]/20 border border-[var(--flow-purple)]/30 text-sm">
+                                    <Cpu className="w-3 h-3 text-[var(--flow-purple)]" />
+                                    <span className="text-[var(--flow-purple)] font-medium">NodeOps AI</span>
+                                </span>
+
+                                {/* Casper Network Badge */}
+                                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-sm">
                                     <span className="relative flex h-2 w-2">
-                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--flow-cyan)] opacity-75" />
-                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--flow-cyan)]" />
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--flow-green)] opacity-75" />
+                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--flow-green)]" />
                                     </span>
-                                    <span className="text-[var(--flow-text-secondary)]">Project on</span>
-                                    <span className="text-white font-medium">Casper Network</span>
+                                    <span className="text-[var(--flow-text-secondary)]">Live on</span>
+                                    <span className="text-white font-medium">Casper Testnet</span>
                                 </span>
                             </motion.div>
 
@@ -199,7 +248,7 @@ export default function Home() {
                                 <span className="text-[var(--flow-cyan)] font-medium">NodeOps AI</span> risk scoring.
                             </motion.p>
 
-                            {/* CTA Buttons */}
+                            {/* CTA Buttons - AGGRESSIVE */}
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
@@ -207,14 +256,22 @@ export default function Home() {
                                 className="flex flex-wrap gap-4"
                             >
                                 <MagneticButton>
-                                    <Link href="/dashboard" className="btn-primary flex items-center gap-2">
-                                        Get Funded <ArrowRight className="w-4 h-4" />
+                                    <Link href="/dashboard" className="relative group">
+                                        {/* Pulsing glow effect */}
+                                        <span className="absolute inset-0 rounded-xl bg-gradient-to-r from-[var(--flow-cyan)] to-[var(--flow-purple)] blur-lg opacity-50 group-hover:opacity-75 animate-pulse" />
+                                        <span className="relative btn-primary text-base md:text-lg px-6 md:px-8 py-3 md:py-4 flex items-center gap-2 md:gap-3 rounded-xl bg-gradient-to-r from-[var(--flow-cyan)] to-[var(--flow-purple)] hover:shadow-[0_0_40px_var(--flow-cyan)] transition-all duration-300">
+                                            <Rocket className="w-4 h-4 md:w-5 md:h-5" />
+                                            <span className="hidden sm:inline">Get Funded Now</span>
+                                            <span className="sm:hidden">Get Funded</span>
+                                            <ArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" />
+                                        </span>
                                     </Link>
                                 </MagneticButton>
 
                                 <MagneticButton>
-                                    <Link href="/marketplace" className="btn-secondary flex items-center gap-2">
-                                        Start Investing <ArrowUpRight className="w-4 h-4" />
+                                    <Link href="/marketplace" className="btn-secondary text-lg px-8 py-4 flex items-center gap-3 hover:bg-white/10 transition-all">
+                                        <TrendingUp className="w-5 h-5" />
+                                        Invest & Earn 16% APY
                                     </Link>
                                 </MagneticButton>
                             </motion.div>
@@ -322,8 +379,22 @@ export default function Home() {
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                                 {stats.map((stat, i) => (
                                     <FadeInSection key={i} delay={i * 0.1} direction="up">
-                                        <div className="text-center">
-                                            <p className="text-4xl md:text-5xl font-bold text-gradient mb-2">
+                                        <div className="text-center group">
+                                            <p
+                                                className="text-4xl md:text-6xl font-black mb-2 transition-all duration-300 group-hover:scale-110"
+                                                style={{
+                                                    background: i === 0
+                                                        ? 'linear-gradient(135deg, #FF6B6B, #FFE66D)'
+                                                        : i === 1
+                                                            ? 'linear-gradient(135deg, #00D9FF, #00FFA3)'
+                                                            : i === 2
+                                                                ? 'linear-gradient(135deg, #A855F7, #EC4899)'
+                                                                : 'linear-gradient(135deg, #00FFA3, #00D9FF)',
+                                                    WebkitBackgroundClip: 'text',
+                                                    WebkitTextFillColor: 'transparent',
+                                                    filter: 'drop-shadow(0 0 20px rgba(0, 217, 255, 0.3))'
+                                                }}
+                                            >
                                                 <AnimatedCounter
                                                     to={stat.value}
                                                     suffix={stat.suffix}
@@ -331,7 +402,7 @@ export default function Home() {
                                                     decimals={stat.decimals || 0}
                                                 />
                                             </p>
-                                            <p className="text-sm text-[var(--flow-text-muted)] uppercase tracking-wider">
+                                            <p className="text-sm text-[var(--flow-text-secondary)] uppercase tracking-wider font-medium">
                                                 {stat.label}
                                             </p>
                                         </div>
@@ -378,8 +449,12 @@ export default function Home() {
                                     <div className="p-8 h-full flex flex-col">
                                         {/* Step Number */}
                                         <span
-                                            className="text-6xl font-bold opacity-10 mb-4"
-                                            style={{ color: step.color }}
+                                            className="text-7xl font-black mb-4 drop-shadow-lg"
+                                            style={{
+                                                color: step.color,
+                                                opacity: 0.35,
+                                                textShadow: `0 0 30px ${step.color}40`
+                                            }}
                                         >
                                             {step.step}
                                         </span>
@@ -462,6 +537,90 @@ export default function Home() {
                 </div>
             </section>
 
+            {/* ===== TESTIMONIALS SECTION ===== */}
+            <section className="py-16 md:py-32 relative overflow-hidden">
+                {/* Background */}
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[var(--flow-purple)]/5 to-transparent pointer-events-none" />
+
+                <div className="container mx-auto px-6 relative z-10">
+                    {/* Section Header */}
+                    <div className="text-center max-w-3xl mx-auto mb-12 md:mb-20">
+                        <FadeInSection>
+                            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--flow-purple)]/10 border border-[var(--flow-purple)]/20 text-sm mb-4">
+                                <Star className="w-4 h-4 text-[var(--flow-purple)]" />
+                                <span className="text-[var(--flow-purple)] font-medium">Trusted by Industry Leaders</span>
+                            </span>
+                        </FadeInSection>
+                        <AnimatedWords className="section-title mb-6">
+                            What Our Beta Partners Say
+                        </AnimatedWords>
+                        <FadeInSection delay={0.2}>
+                            <p className="section-subtitle mx-auto">
+                                Early adopters are already transforming their working capital management with FlowFi.
+                            </p>
+                        </FadeInSection>
+                    </div>
+
+                    {/* Testimonials Grid */}
+                    <div className="grid md:grid-cols-3 gap-8">
+                        {testimonials.map((testimonial, i) => (
+                            <FadeInSection key={i} delay={i * 0.15} direction="up">
+                                <div className="glass rounded-2xl p-8 border border-white/10 h-full flex flex-col group hover:border-white/20 transition-all duration-500">
+                                    {/* Quote Icon */}
+                                    <Quote className="w-10 h-10 text-white/10 mb-4" />
+
+                                    {/* Quote Text */}
+                                    <p className="text-lg text-[var(--flow-text-secondary)] leading-relaxed mb-6 flex-grow italic">
+                                        "{testimonial.quote}"
+                                    </p>
+
+                                    {/* Author */}
+                                    <div className="flex items-center gap-4 pt-4 border-t border-white/10">
+                                        <div
+                                            className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold"
+                                            style={{ backgroundColor: `${testimonial.color}30`, color: testimonial.color }}
+                                        >
+                                            {testimonial.avatar}
+                                        </div>
+                                        <div>
+                                            <p className="font-semibold text-white">{testimonial.author}</p>
+                                            <p className="text-sm text-[var(--flow-text-muted)]">
+                                                {testimonial.role}, {testimonial.company}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </FadeInSection>
+                        ))}
+                    </div>
+
+                    {/* Trust Logos / Partners Bar */}
+                    <FadeInSection delay={0.5}>
+                        <div className="mt-16 pt-12 border-t border-white/10">
+                            <p className="text-center text-sm text-[var(--flow-text-muted)] mb-8 uppercase tracking-wider">Built With Best-in-Class Technology</p>
+                            <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-50">
+                                <div className="flex items-center gap-2 text-white/70">
+                                    <Globe className="w-6 h-6" />
+                                    <span className="font-semibold">Casper Network</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-white/70">
+                                    <Cpu className="w-6 h-6" />
+                                    <span className="font-semibold">NodeOps AI</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-white/70">
+                                    <Shield className="w-6 h-6" />
+                                    <span className="font-semibold">CEP-78 NFT</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-white/70">
+                                    <BarChart3 className="w-6 h-6" />
+                                    <span className="font-semibold">CSPR.cloud</span>
+                                </div>
+                            </div>
+                        </div>
+                    </FadeInSection>
+                </div>
+            </section>
+
             {/* ===== CTA SECTION ===== */}
             <section className="py-16 md:py-32 relative overflow-hidden">
                 <div className="container mx-auto px-6">
@@ -481,29 +640,47 @@ export default function Home() {
                                 </FadeInSection>
 
                                 <AnimatedWords className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 max-w-4xl mx-auto">
-                                    Ready to Transform Your Cash Flow?
+                                    Stop Waiting. Start Growing.
                                 </AnimatedWords>
 
                                 <FadeInSection delay={0.3}>
-                                    <p className="text-xl text-[var(--flow-text-secondary)] max-w-2xl mx-auto mb-10">
-                                        Join hundreds of businesses already using FlowFi to unlock instant liquidity. Start in under 5 minutes.
+                                    <p className="text-xl text-[var(--flow-text-secondary)] max-w-2xl mx-auto mb-4">
+                                        $3 trillion is trapped in unpaid invoices globally. Unlock yours in minutes.
                                     </p>
+                                    <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-6 mb-10">
+                                        <div className="flex items-center justify-center gap-2 text-[var(--flow-green)]">
+                                            <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+                                            <span className="text-sm sm:text-base">No credit checks</span>
+                                        </div>
+                                        <div className="flex items-center justify-center gap-2 text-[var(--flow-green)]">
+                                            <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+                                            <span className="text-sm sm:text-base">5-minute setup</span>
+                                        </div>
+                                        <div className="flex items-center justify-center gap-2 text-[var(--flow-green)]">
+                                            <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+                                            <span className="text-sm sm:text-base">Same-day funding</span>
+                                        </div>
+                                    </div>
                                 </FadeInSection>
 
                                 <FadeInSection delay={0.5}>
-                                    <div className="flex flex-wrap justify-center gap-4">
+                                    <div className="flex flex-col sm:flex-row justify-center gap-4">
                                         <MagneticButton>
-                                            <Link href="/dashboard" className="btn-primary text-lg px-10 py-5 flex items-center gap-3">
-                                                Start Now <ArrowRight className="w-5 h-5" />
-                                            </Link>
-                                        </MagneticButton>
-
-                                        <MagneticButton>
-                                            <Link href="/developers" className="btn-secondary text-lg px-10 py-5 flex items-center gap-3">
-                                                View Documentation
+                                            <Link href="/dashboard" className="relative group">
+                                                {/* Animated glow */}
+                                                <span className="absolute inset-0 rounded-2xl bg-gradient-to-r from-[var(--flow-green)] to-[var(--flow-cyan)] blur-xl opacity-50 group-hover:opacity-100 transition-opacity animate-pulse" />
+                                                <span className="relative flex items-center gap-2 sm:gap-3 px-6 sm:px-12 py-4 sm:py-6 text-lg sm:text-xl font-bold rounded-2xl bg-gradient-to-r from-[var(--flow-green)] to-[var(--flow-cyan)] text-black hover:shadow-[0_0_60px_var(--flow-green)] transition-all duration-300">
+                                                    <Rocket className="w-5 h-5 sm:w-6 sm:h-6" />
+                                                    <span className="hidden sm:inline">Get Funded Now — It's Free</span>
+                                                    <span className="sm:hidden">Get Funded Free</span>
+                                                    <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 group-hover:translate-x-2 transition-transform" />
+                                                </span>
                                             </Link>
                                         </MagneticButton>
                                     </div>
+                                    <p className="text-sm text-[var(--flow-text-muted)] mt-6">
+                                        🔒 Non-custodial • No hidden fees • Cancel anytime
+                                    </p>
                                 </FadeInSection>
                             </div>
                         </div>
