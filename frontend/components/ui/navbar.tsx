@@ -43,9 +43,6 @@ export default function Navbar() {
     return (
         <>
             <motion.header
-                initial={{ y: -100 }}
-                animate={{ y: 0 }}
-                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                 className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ${scrolled
                     ? "bg-[var(--flow-bg-primary)]/80 backdrop-blur-xl border-b border-white/5 shadow-2xl shadow-black/20"
                     : "bg-transparent"
